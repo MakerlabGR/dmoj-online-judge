@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dmoj\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-20 00:37+0000\n"
-"PO-Revision-Date: 2022-05-20 00:55\n"
+"POT-Creation-Date: 2022-07-19 13:49+0000\n"
+"PO-Revision-Date: 2022-07-20 00:54\n"
 "Last-Translator: \n"
 "Language-Team: Dutch\n"
 "Language: nl_NL\n"
@@ -17,12 +17,16 @@ msgstr ""
 "X-Crowdin-File: django.po\n"
 "X-Crowdin-File-ID: 10\n"
 
-#: dmoj/settings.py:372
+#: dmoj/settings.py:371
 msgid "Catalan"
 msgstr ""
 
-#: dmoj/settings.py:373
+#: dmoj/settings.py:372
 msgid "German"
+msgstr ""
+
+#: dmoj/settings.py:373
+msgid "Greek"
 msgstr ""
 
 #: dmoj/settings.py:374
@@ -97,8 +101,12 @@ msgstr ""
 msgid "Registration Not Allowed"
 msgstr ""
 
-#: dmoj/urls.py:97 templates/base.html:190
+#: dmoj/urls.py:93 templates/base.html:190
 msgid "Home"
+msgstr ""
+
+#: judge/admin/comments.py:23 judge/admin/interface.py:72
+msgid "Content"
 msgstr ""
 
 #: judge/admin/comments.py:40
@@ -136,6 +144,12 @@ msgstr ""
 #: templates/problem/list.html:219 templates/user/user-problems.html:58
 #: templates/user/user-problems.html:100
 msgid "Problem"
+msgstr ""
+
+#: judge/admin/contest.py:67 judge/views/problem.py:271
+#: templates/contest/contest.html:191 templates/user/user-tabs.html:5
+#: templates/user/users-table.html:23
+msgid "Problems"
 msgstr ""
 
 #: judge/admin/contest.py:123
@@ -238,10 +252,6 @@ msgstr ""
 
 #: judge/admin/interface.py:29 judge/models/interface.py:46
 msgid "link path"
-msgstr ""
-
-#: judge/admin/interface.py:72
-msgid "Content"
 msgstr ""
 
 #: judge/admin/interface.py:73
@@ -348,12 +358,12 @@ msgstr ""
 msgid "User"
 msgstr ""
 
-#: judge/admin/profile.py:103 templates/registration/registration_form.html:143
+#: judge/admin/profile.py:103 templates/registration/registration_form.html:149
 msgid "Email"
 msgstr ""
 
 #: judge/admin/profile.py:108 judge/views/register.py:28
-#: templates/registration/registration_form.html:171
+#: templates/registration/registration_form.html:177
 #: templates/user/edit-profile.html:292
 msgid "Timezone"
 msgstr ""
@@ -364,8 +374,8 @@ msgstr ""
 
 #: judge/admin/profile.py:120
 #, python-format
-msgid "%d user have scores recalculated."
-msgid_plural "%d users have scores recalculated."
+msgid "%d user had scores recalculated."
+msgid_plural "%d users had scores recalculated."
 msgstr[0] ""
 msgstr[1] ""
 
@@ -440,7 +450,7 @@ msgstr ""
 
 #: judge/admin/submission.py:204 judge/views/problem_manage.py:129
 #, python-format
-msgid "%d submission were successfully rescored."
+msgid "%d submission was successfully rescored."
 msgid_plural "%d submissions were successfully rescored."
 msgstr[0] ""
 msgstr[1] ""
@@ -602,103 +612,103 @@ msgstr ""
 msgid "Scratch codes must be 16 base32 characters."
 msgstr ""
 
-#: judge/forms.py:35 judge/forms.py:264
+#: judge/forms.py:35 judge/forms.py:260
 msgid "Invalid scratch code."
 msgstr ""
 
-#: judge/forms.py:46
+#: judge/forms.py:42
 msgid "Subscribe to contest updates"
 msgstr ""
 
-#: judge/forms.py:47
+#: judge/forms.py:43
 msgid "Enable experimental features"
 msgstr ""
 
-#: judge/forms.py:72
+#: judge/forms.py:68
 msgid "You must solve at least one problem before you can update your profile."
 msgstr ""
 
-#: judge/forms.py:81 judge/views/organization.py:147
+#: judge/forms.py:77 judge/views/organization.py:147
 #, python-brace-format
 msgid "You may not be part of more than {count} public organizations."
 msgstr ""
 
-#: judge/forms.py:97
+#: judge/forms.py:93
 msgid "Download comments?"
 msgstr ""
 
-#: judge/forms.py:98
+#: judge/forms.py:94
 msgid "Download submissions?"
 msgstr ""
 
-#: judge/forms.py:99
+#: judge/forms.py:95
 msgid "Filter by problem code glob:"
 msgstr ""
 
-#: judge/forms.py:103
+#: judge/forms.py:99
 msgid "Leave empty to include all submissions"
 msgstr ""
 
-#: judge/forms.py:106 templates/problem/manage_submission.html:142
+#: judge/forms.py:102 templates/problem/manage_submission.html:142
 msgid "Filter by result:"
 msgstr ""
 
-#: judge/forms.py:112
+#: judge/forms.py:108
 msgid "Please select at least one thing to download."
 msgstr ""
 
-#: judge/forms.py:138
+#: judge/forms.py:134
 msgid "Any judge"
 msgstr ""
 
-#: judge/forms.py:159 judge/views/register.py:25
-#: templates/registration/registration_form.html:137
+#: judge/forms.py:155 judge/views/register.py:25
+#: templates/registration/registration_form.html:143
 #: templates/user/base-users-table.html:5
 msgid "Username"
 msgstr ""
 
-#: judge/forms.py:160 templates/registration/registration_form.html:149
-#: templates/registration/registration_form.html:163
+#: judge/forms.py:156 templates/registration/registration_form.html:155
+#: templates/registration/registration_form.html:169
 msgid "Password"
 msgstr ""
 
-#: judge/forms.py:192
+#: judge/forms.py:188
 msgid "Invalid code length."
 msgstr ""
 
-#: judge/forms.py:223
+#: judge/forms.py:219
 msgid "Invalid WebAuthn response."
 msgstr ""
 
-#: judge/forms.py:226
+#: judge/forms.py:222
 msgid "No WebAuthn challenge issued."
 msgstr ""
 
-#: judge/forms.py:232
+#: judge/forms.py:228
 msgid "Invalid WebAuthn credential ID."
 msgstr ""
 
-#: judge/forms.py:262
+#: judge/forms.py:258
 msgid "Invalid two-factor authentication token or scratch code."
 msgstr ""
 
-#: judge/forms.py:266
+#: judge/forms.py:262
 msgid "Must specify either totp_token or webauthn_response."
 msgstr ""
 
-#: judge/forms.py:270 judge/models/problem.py:120
+#: judge/forms.py:266 judge/models/problem.py:120
 msgid "Problem code must be ^[a-z0-9]+$"
 msgstr ""
 
-#: judge/forms.py:275
+#: judge/forms.py:271
 msgid "Problem with code already exists."
 msgstr ""
 
-#: judge/forms.py:280 judge/models/contest.py:68
+#: judge/forms.py:276 judge/models/contest.py:68
 msgid "Contest id must be ^[a-z0-9]+$"
 msgstr ""
 
-#: judge/forms.py:285
+#: judge/forms.py:281
 msgid "Contest with key already exists."
 msgstr ""
 
@@ -1092,7 +1102,7 @@ msgid "OpenGraph image"
 msgstr ""
 
 #: judge/models/contest.py:149 judge/models/profile.py:58
-msgid "Logo override image"
+msgid "logo override image"
 msgstr ""
 
 #: judge/models/contest.py:151
@@ -1385,6 +1395,14 @@ msgstr ""
 msgid "contest moss results"
 msgstr ""
 
+#: judge/models/interface.py:17 judge/models/problem.py:61
+msgid "key"
+msgstr ""
+
+#: judge/models/interface.py:18
+msgid "value"
+msgstr ""
+
 #: judge/models/interface.py:24
 msgid "configuration item"
 msgstr ""
@@ -1502,10 +1520,6 @@ msgstr ""
 msgid "problem groups"
 msgstr ""
 
-#: judge/models/problem.py:61
-msgid "key"
-msgstr ""
-
 #: judge/models/problem.py:63
 msgid "link"
 msgstr ""
@@ -1612,7 +1626,7 @@ msgid "memory limit"
 msgstr ""
 
 #: judge/models/problem.py:147
-msgid "The memory limit for this problem, in kilobytes (e.g. 64mb = 65536 kilobytes)."
+msgid "The memory limit for this problem, in kilobytes (e.g. 256mb = 262144 kilobytes)."
 msgstr ""
 
 #: judge/models/problem.py:151
@@ -2039,7 +2053,7 @@ msgid "self-description"
 msgstr ""
 
 #: judge/models/profile.py:150
-msgid "location"
+msgid "time zone"
 msgstr ""
 
 #: judge/models/profile.py:152
@@ -2245,6 +2259,18 @@ msgstr ""
 msgid "state"
 msgstr ""
 
+#: judge/models/profile.py:361 templates/organization/requests/tabs.html:4
+msgid "Pending"
+msgstr ""
+
+#: judge/models/profile.py:362 templates/organization/requests/tabs.html:10
+msgid "Approved"
+msgstr ""
+
+#: judge/models/profile.py:363 templates/organization/requests/tabs.html:13
+msgid "Rejected"
+msgstr ""
+
 #: judge/models/profile.py:366
 msgid "reason"
 msgstr ""
@@ -2282,7 +2308,7 @@ msgid "common name"
 msgstr ""
 
 #: judge/models/runtime.py:30
-msgid "Common name for the language. For example, the common name for C++03, C++11, and C++14 would be \"C++\""
+msgid "Common name for the language. For example, the common name for C++03, C++11, and C++14 would be \"C++\"."
 msgstr ""
 
 #: judge/models/runtime.py:32
@@ -3167,7 +3193,7 @@ msgstr ""
 
 #: judge/views/organization.py:377
 #, python-format
-msgid "The user you are trying to kick is not in organization: %s."
+msgid "The user you are trying to kick is not in organization: %s"
 msgstr ""
 
 #: judge/views/organization.py:410
@@ -3206,11 +3232,6 @@ msgstr ""
 #: judge/views/problem.py:138
 #, python-format
 msgid "Could not find an editorial with the code \"%s\"."
-msgstr ""
-
-#: judge/views/problem.py:271 templates/contest/contest.html:191
-#: templates/user/user-tabs.html:5 templates/user/users-table.html:23
-msgid "Problems"
 msgstr ""
 
 #: judge/views/problem.py:568 judge/views/problem.py:576
@@ -3578,13 +3599,8 @@ msgstr ""
 msgid "You have been successfully logged out."
 msgstr ""
 
-#: judge/views/widgets.py:52 judge/views/widgets.py:62
-#, python-format
-msgid "Invalid upstream data: %s"
-msgstr ""
-
-#: judge/views/widgets.py:72
-msgid "Bad latitude or longitude"
+#: judge/views/user.py:518
+msgid "You have sent too many password reset requests. Please try again later."
 msgstr ""
 
 #: templates/admin/judge/contest/change_form.html:9
@@ -3648,7 +3664,7 @@ msgstr ""
 msgid "Log in"
 msgstr ""
 
-#: templates/base.html:237 templates/registration/registration_form.html:175
+#: templates/base.html:237 templates/registration/registration_form.html:181
 msgid "or"
 msgstr ""
 
@@ -3715,8 +3731,18 @@ msgstr ""
 msgid "Ongoing contests"
 msgstr ""
 
+#: templates/blog/list.html:163
+#, python-format
+msgid "Ends in %(countdown)s."
+msgstr ""
+
 #: templates/blog/list.html:173
 msgid "Upcoming contests"
+msgstr ""
+
+#: templates/blog/list.html:181 templates/contest/list.html:257
+#, python-format
+msgid "Starting in %(countdown)s."
 msgstr ""
 
 #: templates/blog/list.html:190
@@ -3735,7 +3761,7 @@ msgstr ""
 msgid "New tickets"
 msgstr ""
 
-#: templates/comments/list.html:2 templates/user/prepare-data.html:97
+#: templates/comments/list.html:2 templates/user/prepare-data.html:98
 msgid "Comments"
 msgstr ""
 
@@ -3798,7 +3824,7 @@ msgstr ""
 msgid "Invalid comment body."
 msgstr ""
 
-#: templates/comments/list.html:159
+#: templates/comments/list.html:159 templates/ticket/ticket.html:356
 msgid "Post!"
 msgstr ""
 
@@ -3933,7 +3959,7 @@ msgstr ""
 msgid "Leave contest"
 msgstr ""
 
-#: templates/contest/contest-tabs.html:45 templates/contest/list.html:306
+#: templates/contest/contest-tabs.html:45 templates/contest/list.html:308
 msgid "Virtual join"
 msgstr ""
 
@@ -3950,7 +3976,7 @@ msgstr ""
 msgid "Spectate contest"
 msgstr ""
 
-#: templates/contest/contest-tabs.html:80 templates/contest/list.html:149
+#: templates/contest/contest-tabs.html:80 templates/contest/list.html:151
 msgid "You cannot join this contest."
 msgstr ""
 
@@ -3958,12 +3984,42 @@ msgstr ""
 msgid "Log in to participate"
 msgstr ""
 
+#: templates/contest/contest.html:33
+#, python-format
+msgid "Spectating, contest ends in %(countdown)s."
+msgstr ""
+
+#: templates/contest/contest.html:35
+#, python-format
+msgid "Participating virtually, %(countdown)s remaining."
+msgstr ""
+
 #: templates/contest/contest.html:37
 msgid "Participating virtually."
 msgstr ""
 
+#: templates/contest/contest.html:41
+#, python-format
+msgid "Starting in %(countdown)s"
+msgstr ""
+
 #: templates/contest/contest.html:43
 msgid "Contest is over."
+msgstr ""
+
+#: templates/contest/contest.html:47
+#, python-format
+msgid "Your time is up! Contest ends in %(countdown)s."
+msgstr ""
+
+#: templates/contest/contest.html:49
+#, python-format
+msgid "You have %(countdown)s remaining."
+msgstr ""
+
+#: templates/contest/contest.html:52
+#, python-format
+msgid "Contest ends in %(countdown)s."
 msgstr ""
 
 #: templates/contest/contest.html:58 templates/contest/contest.html:60
@@ -4096,8 +4152,8 @@ msgstr ""
 msgid "AC Rate"
 msgstr ""
 
-#: templates/contest/contest.html:198 templates/contest/list.html:164
-#: templates/contest/list.html:206 templates/contest/list.html:283
+#: templates/contest/contest.html:198 templates/contest/list.html:166
+#: templates/contest/list.html:208 templates/contest/list.html:285
 #: templates/problem/list.html:209 templates/problem/list.html:241
 msgid "Users"
 msgstr ""
@@ -4131,36 +4187,56 @@ msgstr ""
 msgid "rated"
 msgstr ""
 
-#: templates/contest/list.html:137 templates/contest/list.html:149
+#: templates/contest/list.html:116
+#, python-format
+msgid "%(time_limit)s window"
+msgstr ""
+
+#: templates/contest/list.html:119
+#, python-format
+msgid "%(duration)s long"
+msgstr ""
+
+#: templates/contest/list.html:139 templates/contest/list.html:151
 msgid "Join"
 msgstr ""
 
-#: templates/contest/list.html:143
+#: templates/contest/list.html:145
 msgid "Spectate"
 msgstr ""
 
-#: templates/contest/list.html:159
+#: templates/contest/list.html:161
 msgid "Active Contests"
 msgstr ""
 
-#: templates/contest/list.html:163 templates/contest/list.html:205
-#: templates/contest/list.html:243 templates/contest/list.html:280
+#: templates/contest/list.html:165 templates/contest/list.html:207
+#: templates/contest/list.html:245 templates/contest/list.html:282
 msgid "Contest"
 msgstr ""
 
-#: templates/contest/list.html:201
+#: templates/contest/list.html:182
+#, python-format
+msgid "Window ends in %(countdown)s"
+msgstr ""
+
+#: templates/contest/list.html:184 templates/contest/list.html:223
+#, python-format
+msgid "Ends in %(countdown)s"
+msgstr ""
+
+#: templates/contest/list.html:203
 msgid "Ongoing Contests"
 msgstr ""
 
-#: templates/contest/list.html:238
+#: templates/contest/list.html:240
 msgid "Upcoming Contests"
 msgstr ""
 
-#: templates/contest/list.html:266
+#: templates/contest/list.html:268
 msgid "There are no scheduled contests at this time."
 msgstr ""
 
-#: templates/contest/list.html:272
+#: templates/contest/list.html:274
 msgid "Past Contests"
 msgstr ""
 
@@ -4182,7 +4258,7 @@ msgid "Joining this contest will leave %(contest)s."
 msgstr ""
 
 #: templates/contest/moss.html:28
-msgid "Are you sure you want MOSS the contest?"
+msgid "Are you sure you want to MOSS the contest?"
 msgstr ""
 
 #: templates/contest/moss.html:33
@@ -4284,7 +4360,7 @@ msgid "Language AC Rate"
 msgstr ""
 
 #: templates/license.html:12
-msgid "Source:"
+msgid "Visit source"
 msgstr ""
 
 #: templates/newsletter/common.html:6
@@ -4466,20 +4542,8 @@ msgstr ""
 msgid "Request"
 msgstr ""
 
-#: templates/organization/requests/tabs.html:4
-msgid "Pending"
-msgstr ""
-
 #: templates/organization/requests/tabs.html:7
 msgid "Log"
-msgstr ""
-
-#: templates/organization/requests/tabs.html:10
-msgid "Approved"
-msgstr ""
-
-#: templates/organization/requests/tabs.html:13
-msgid "Rejected"
 msgstr ""
 
 #: templates/organization/users-table.html:15
@@ -4921,11 +4985,12 @@ msgstr ""
 msgid "To reset the password for your account \"%(username)s\", click the button below."
 msgstr ""
 
-#: templates/registration/password_reset_email.html:15
-msgid "See you soon! If you have problems resetting your email, feel free to shoot us an email at"
+#: templates/registration/password_reset_email.html:16
+#, python-format
+msgid "See you soon! If you have problems resetting your password, feel free to shoot us an email at %(email)s."
 msgstr ""
 
-#: templates/registration/password_reset_email.html:17
+#: templates/registration/password_reset_email.html:19
 msgid "See you soon!"
 msgstr ""
 
@@ -4956,7 +5021,7 @@ msgstr ""
 msgid "Password reset on %(site_name)s"
 msgstr ""
 
-#: templates/registration/profile_creation.html:36
+#: templates/registration/profile_creation.html:48
 #: templates/registration/username_select.html:7
 msgid "Continue >"
 msgstr ""
@@ -4969,41 +5034,37 @@ msgstr ""
 msgid "You have successfully been registered. An email has been sent to the email address you provided to confirm your registration."
 msgstr ""
 
-#: templates/registration/registration_form.html:164
+#: templates/registration/registration_form.html:170
 msgid "(again, for confirmation)"
 msgstr ""
 
-#: templates/registration/registration_form.html:171
+#: templates/registration/registration_form.html:177
 msgid "(select your closest major city)"
 msgstr ""
 
-#: templates/registration/registration_form.html:176
+#: templates/registration/registration_form.html:182
 msgid "pick from map"
 msgstr ""
 
-#: templates/registration/registration_form.html:181
+#: templates/registration/registration_form.html:187
 msgid "Default language"
 msgstr ""
 
-#: templates/registration/registration_form.html:184
+#: templates/registration/registration_form.html:190
 #: templates/user/edit-profile.html:314
 msgid "Affiliated organizations"
 msgstr ""
 
-#: templates/registration/registration_form.html:190
+#: templates/registration/registration_form.html:196
 #: templates/user/edit-profile.html:328
 msgid "Notify me about upcoming contests"
 msgstr ""
 
-#: templates/registration/registration_form.html:204
-msgid "By registering, you agree to our"
+#: templates/registration/registration_form.html:210
+msgid "By registering, you agree to our [Terms & Conditions][0]."
 msgstr ""
 
-#: templates/registration/registration_form.html:205
-msgid "Terms & Conditions"
-msgstr ""
-
-#: templates/registration/registration_form.html:208
+#: templates/registration/registration_form.html:213
 msgid "Register!"
 msgstr ""
 
@@ -5012,7 +5073,8 @@ msgid "To protect your account, you must first authenticate before you can disab
 msgstr ""
 
 #: templates/registration/totp_disable.html:38
-msgid "Enter the 6-digit code generated by your app or one of your 16-digit scratch codes:"
+#: templates/registration/two_factor_auth.html:79
+msgid "Enter the 6-digit code generated by your app or one of your 16-character scratch codes:"
 msgstr ""
 
 #: templates/registration/totp_disable.html:41
@@ -5084,10 +5146,6 @@ msgstr ""
 #: templates/registration/two_factor_auth.html:54
 #: templates/user/edit-profile.html:189
 msgid "Failed to contact server."
-msgstr ""
-
-#: templates/registration/two_factor_auth.html:79
-msgid "Enter the 6-digit code generated by your app or one of your 16-character scratch codes:"
 msgstr ""
 
 #: templates/registration/two_factor_auth.html:81
@@ -5261,19 +5319,23 @@ msgid "Execution Results"
 msgstr ""
 
 #: templates/submission/status-testcases.html:51
-msgid "Batch "
+#, python-format
+msgid "Batch #%(id)d"
 msgstr ""
 
 #: templates/submission/status-testcases.html:64
-msgid "Case"
+#, python-format
+msgid "Case #%(id)d:"
 msgstr ""
 
 #: templates/submission/status-testcases.html:66
-msgid "Pretest"
+#, python-format
+msgid "Pretest #%(id)d:"
 msgstr ""
 
 #: templates/submission/status-testcases.html:68
-msgid "Test case"
+#, python-format
+msgid "Test case #%(id)d:"
 msgstr ""
 
 #: templates/submission/status-testcases.html:101
@@ -5395,10 +5457,6 @@ msgstr ""
 msgid "Please keep in mind that this form is for reporting issues with a problem statement, and not for asking for help. If you require assistance on solving a problem, ask in the comments instead."
 msgstr ""
 
-#: templates/ticket/ticket.html:356
-msgid "Post"
-msgstr ""
-
 #: templates/ticket/ticket.html:364
 msgid "Associated object"
 msgstr ""
@@ -5444,7 +5502,7 @@ msgid "It also allows access to your account without Two-factor Authentication."
 msgstr ""
 
 #: templates/user/edit-profile.html:116
-msgid "You will not be able to view your api token after you leave this page!"
+msgid "You will not be able to view your API token after you leave this page!"
 msgstr ""
 
 #: templates/user/edit-profile.html:117 templates/user/edit-profile.html:211
@@ -5555,12 +5613,7 @@ msgstr ""
 
 #: templates/user/pp-row.html:26
 #, python-format
-msgid "%(pp).1fpp"
-msgstr ""
-
-#: templates/user/pp-row.html:28
-#, python-format
-msgid "%(pp).0fpp"
+msgid "weighted %(percent)s (%(pp)spp)"
 msgstr ""
 
 #: templates/user/prepare-data.html:64
@@ -5575,31 +5628,41 @@ msgstr ""
 msgid "Track progress"
 msgstr ""
 
-#: templates/user/prepare-data.html:86
+#: templates/user/prepare-data.html:85
+#, python-format
+msgid "You may only prepare a new data download once every %(duration)s."
+msgstr ""
+
+#: templates/user/prepare-data.html:87
 msgid "Once your data is ready, you will find a download link on this page."
 msgstr ""
 
-#: templates/user/prepare-data.html:103
+#: templates/user/prepare-data.html:104
 msgid "Submissions"
 msgstr ""
 
-#: templates/user/prepare-data.html:120
+#: templates/user/prepare-data.html:121
 msgid "Prepare new download"
 msgstr ""
 
-#: templates/user/prepare-data.html:122
+#: templates/user/prepare-data.html:123
 msgid "Prepare download"
 msgstr ""
 
-#: templates/user/prepare-data.html:126
+#: templates/user/prepare-data.html:127
 msgid "Download prepared data"
 msgstr ""
 
-#: templates/user/prepare-data.html:132
+#: templates/user/prepare-data.html:133
 msgid "Your data is ready!"
 msgstr ""
 
-#: templates/user/prepare-data.html:136
+#: templates/user/prepare-data.html:135
+#, python-format
+msgid "You will need to wait %(countdown)s to prepare a new data download."
+msgstr ""
+
+#: templates/user/prepare-data.html:137
 msgid "Download data"
 msgstr ""
 

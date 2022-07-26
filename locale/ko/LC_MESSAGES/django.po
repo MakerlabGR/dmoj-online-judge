@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dmoj\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-20 00:37+0000\n"
-"PO-Revision-Date: 2022-05-21 00:47\n"
+"POT-Creation-Date: 2022-07-19 13:49+0000\n"
+"PO-Revision-Date: 2022-07-26 01:00\n"
 "Last-Translator: \n"
 "Language-Team: Korean\n"
 "Language: ko_KR\n"
@@ -17,13 +17,17 @@ msgstr ""
 "X-Crowdin-File: django.po\n"
 "X-Crowdin-File-ID: 10\n"
 
-#: dmoj/settings.py:372
+#: dmoj/settings.py:371
 msgid "Catalan"
 msgstr "카탈루냐어"
 
-#: dmoj/settings.py:373
+#: dmoj/settings.py:372
 msgid "German"
 msgstr "독일어"
+
+#: dmoj/settings.py:373
+msgid "Greek"
+msgstr "그리스어"
 
 #: dmoj/settings.py:374
 msgid "English"
@@ -97,9 +101,13 @@ msgstr ""
 msgid "Registration Not Allowed"
 msgstr ""
 
-#: dmoj/urls.py:97 templates/base.html:190
+#: dmoj/urls.py:93 templates/base.html:190
 msgid "Home"
 msgstr "메인"
+
+#: judge/admin/comments.py:23 judge/admin/interface.py:72
+msgid "Content"
+msgstr "내용"
 
 #: judge/admin/comments.py:40
 #, python-format
@@ -134,6 +142,12 @@ msgstr "포함된 대회"
 #: templates/problem/list.html:219 templates/user/user-problems.html:58
 #: templates/user/user-problems.html:100
 msgid "Problem"
+msgstr "문제"
+
+#: judge/admin/contest.py:67 judge/views/problem.py:271
+#: templates/contest/contest.html:191 templates/user/user-tabs.html:5
+#: templates/user/users-table.html:23
+msgid "Problems"
 msgstr "문제"
 
 #: judge/admin/contest.py:123
@@ -231,10 +245,6 @@ msgstr "가상"
 #: judge/admin/interface.py:29 judge/models/interface.py:46
 msgid "link path"
 msgstr "링크 경로"
-
-#: judge/admin/interface.py:72
-msgid "Content"
-msgstr "내용"
 
 #: judge/admin/interface.py:73
 msgid "Summary"
@@ -337,12 +347,12 @@ msgstr "시간대"
 msgid "User"
 msgstr "사용자"
 
-#: judge/admin/profile.py:103 templates/registration/registration_form.html:143
+#: judge/admin/profile.py:103 templates/registration/registration_form.html:149
 msgid "Email"
 msgstr "이메일"
 
 #: judge/admin/profile.py:108 judge/views/register.py:28
-#: templates/registration/registration_form.html:171
+#: templates/registration/registration_form.html:177
 #: templates/user/edit-profile.html:292
 msgid "Timezone"
 msgstr "시간대"
@@ -353,8 +363,8 @@ msgstr "가입한 날짜"
 
 #: judge/admin/profile.py:120
 #, python-format
-msgid "%d user have scores recalculated."
-msgid_plural "%d users have scores recalculated."
+msgid "%d user had scores recalculated."
+msgid_plural "%d users had scores recalculated."
 msgstr[0] "%d명의 사용자 점수가 재계산되었습니다."
 
 #: judge/admin/profile.py:123
@@ -428,7 +438,7 @@ msgstr "선택한 제출 재채점"
 
 #: judge/admin/submission.py:204 judge/views/problem_manage.py:129
 #, python-format
-msgid "%d submission were successfully rescored."
+msgid "%d submission was successfully rescored."
 msgid_plural "%d submissions were successfully rescored."
 msgstr[0] "%d개의 제출이 성공적으로 재채점되었습니다."
 
@@ -587,103 +597,103 @@ msgstr "잘못된 이중 인증 토큰입니다."
 msgid "Scratch codes must be 16 base32 characters."
 msgstr "스크래치 코드는 16 base32 문자여야 합니다."
 
-#: judge/forms.py:35 judge/forms.py:264
+#: judge/forms.py:35 judge/forms.py:260
 msgid "Invalid scratch code."
 msgstr "유효하지 않은 접근 코드입니다."
 
-#: judge/forms.py:46
+#: judge/forms.py:42
 msgid "Subscribe to contest updates"
 msgstr "대회 업데이트를 구독하세요"
 
-#: judge/forms.py:47
+#: judge/forms.py:43
 msgid "Enable experimental features"
 msgstr "베타 기능 활성화"
 
-#: judge/forms.py:72
+#: judge/forms.py:68
 msgid "You must solve at least one problem before you can update your profile."
 msgstr "프로필을 업데이트하고 싶다면 최소한 한 문제를 먼저 풀어야 합니다."
 
-#: judge/forms.py:81 judge/views/organization.py:147
+#: judge/forms.py:77 judge/views/organization.py:147
 #, python-brace-format
 msgid "You may not be part of more than {count} public organizations."
 msgstr "{count}개보다 많은 공개 조직에 소속될 수 없습니다."
 
-#: judge/forms.py:97
+#: judge/forms.py:93
 msgid "Download comments?"
 msgstr "주석을 다운로드하시겠습니까?"
 
-#: judge/forms.py:98
+#: judge/forms.py:94
 msgid "Download submissions?"
 msgstr "제출물을 다운로드하시겠습니까?"
 
-#: judge/forms.py:99
+#: judge/forms.py:95
 msgid "Filter by problem code glob:"
 msgstr "문제 코드로 필터링:"
 
-#: judge/forms.py:103
+#: judge/forms.py:99
 msgid "Leave empty to include all submissions"
 msgstr "모든 제출물을 포함하려면 비워 둡니다"
 
-#: judge/forms.py:106 templates/problem/manage_submission.html:142
+#: judge/forms.py:102 templates/problem/manage_submission.html:142
 msgid "Filter by result:"
 msgstr "결과 필터링:"
 
-#: judge/forms.py:112
+#: judge/forms.py:108
 msgid "Please select at least one thing to download."
 msgstr "다운 받을 것을 최소 한 개 선택해주세요."
 
-#: judge/forms.py:138
+#: judge/forms.py:134
 msgid "Any judge"
 msgstr "모든 judge"
 
-#: judge/forms.py:159 judge/views/register.py:25
-#: templates/registration/registration_form.html:137
+#: judge/forms.py:155 judge/views/register.py:25
+#: templates/registration/registration_form.html:143
 #: templates/user/base-users-table.html:5
 msgid "Username"
 msgstr "사용자 이름"
 
-#: judge/forms.py:160 templates/registration/registration_form.html:149
-#: templates/registration/registration_form.html:163
+#: judge/forms.py:156 templates/registration/registration_form.html:155
+#: templates/registration/registration_form.html:169
 msgid "Password"
 msgstr "비밀번호"
 
-#: judge/forms.py:192
+#: judge/forms.py:188
 msgid "Invalid code length."
 msgstr "잘못된 코드 길이입니다."
 
-#: judge/forms.py:223
+#: judge/forms.py:219
 msgid "Invalid WebAuthn response."
 msgstr "잘못된 WebAuthn 응답입니다."
 
-#: judge/forms.py:226
+#: judge/forms.py:222
 msgid "No WebAuthn challenge issued."
 msgstr "WebAuthn 챌린지가 발행되지 않았습니다."
 
-#: judge/forms.py:232
+#: judge/forms.py:228
 msgid "Invalid WebAuthn credential ID."
 msgstr "잘못된 WebAuthn 자격 증명 ID입니다."
 
-#: judge/forms.py:262
+#: judge/forms.py:258
 msgid "Invalid two-factor authentication token or scratch code."
 msgstr "잘못된 2단계 인증 토큰 또는 접근 코드입니다."
 
-#: judge/forms.py:266
+#: judge/forms.py:262
 msgid "Must specify either totp_token or webauthn_response."
 msgstr "totp_token 또는 webauthn_response를 지정해야 합니다."
 
-#: judge/forms.py:270 judge/models/problem.py:120
+#: judge/forms.py:266 judge/models/problem.py:120
 msgid "Problem code must be ^[a-z0-9]+$"
 msgstr "문제 코드는 ^[a-z0-9]+$ 이어야 합니다"
 
-#: judge/forms.py:275
+#: judge/forms.py:271
 msgid "Problem with code already exists."
 msgstr "코드에 문제가 이미 있습니다."
 
-#: judge/forms.py:280 judge/models/contest.py:68
+#: judge/forms.py:276 judge/models/contest.py:68
 msgid "Contest id must be ^[a-z0-9]+$"
 msgstr "대회 아이디 ^[a-z0-9]+$ 이어야 합니다"
 
-#: judge/forms.py:285
+#: judge/forms.py:281
 msgid "Contest with key already exists."
 msgstr "키가 있는 콘테스트가 이미 존재합니다."
 
@@ -1077,7 +1087,7 @@ msgid "OpenGraph image"
 msgstr "OpenGraph 이미지"
 
 #: judge/models/contest.py:149 judge/models/profile.py:58
-msgid "Logo override image"
+msgid "logo override image"
 msgstr "이미지 중첩 로고"
 
 #: judge/models/contest.py:151
@@ -1370,6 +1380,14 @@ msgstr "대회 코드 카피 체크 결과"
 msgid "contest moss results"
 msgstr "대회 코드 카피 체크 결과"
 
+#: judge/models/interface.py:17 judge/models/problem.py:61
+msgid "key"
+msgstr "키"
+
+#: judge/models/interface.py:18
+msgid "value"
+msgstr "값"
+
 #: judge/models/interface.py:24
 msgid "configuration item"
 msgstr "설정 항목"
@@ -1487,10 +1505,6 @@ msgstr "문제 그룹"
 msgid "problem groups"
 msgstr "문제 그룹"
 
-#: judge/models/problem.py:61
-msgid "key"
-msgstr "키"
-
 #: judge/models/problem.py:63
 msgid "link"
 msgstr "링크"
@@ -1597,8 +1611,8 @@ msgid "memory limit"
 msgstr "메모리 제한"
 
 #: judge/models/problem.py:147
-msgid "The memory limit for this problem, in kilobytes (e.g. 64mb = 65536 kilobytes)."
-msgstr "이 문제에 대한 메모리 제한(KB)입니다(예: 64mb = 65536KB)."
+msgid "The memory limit for this problem, in kilobytes (e.g. 256mb = 262144 kilobytes)."
+msgstr "이 문제에 대한 메모리 제한(KB)입니다(예: 256mb = 262144KB)."
 
 #: judge/models/problem.py:151
 msgid "short circuit"
@@ -2024,8 +2038,8 @@ msgid "self-description"
 msgstr "자기소개"
 
 #: judge/models/profile.py:150
-msgid "location"
-msgstr "위치"
+msgid "time zone"
+msgstr "시간대"
 
 #: judge/models/profile.py:152
 msgid "preferred language"
@@ -2230,6 +2244,18 @@ msgstr "요청 시간"
 msgid "state"
 msgstr "상태"
 
+#: judge/models/profile.py:361 templates/organization/requests/tabs.html:4
+msgid "Pending"
+msgstr "보류 중"
+
+#: judge/models/profile.py:362 templates/organization/requests/tabs.html:10
+msgid "Approved"
+msgstr "승인됨"
+
+#: judge/models/profile.py:363 templates/organization/requests/tabs.html:13
+msgid "Rejected"
+msgstr "거절됨"
+
 #: judge/models/profile.py:366
 msgid "reason"
 msgstr "이유"
@@ -2267,8 +2293,8 @@ msgid "common name"
 msgstr "흔한 이름"
 
 #: judge/models/runtime.py:30
-msgid "Common name for the language. For example, the common name for C++03, C++11, and C++14 would be \"C++\""
-msgstr "이 언어의 흔한 이름(예를 들면 C++03, C++11, C++14의 경우 C++)"
+msgid "Common name for the language. For example, the common name for C++03, C++11, and C++14 would be \"C++\"."
+msgstr "이 언어의 흔한 이름(예를 들면 C++03, C++11, C++14의 경우 C++)."
 
 #: judge/models/runtime.py:32
 msgid "ace mode name"
@@ -3147,7 +3173,7 @@ msgstr "탈퇴시키려는 사용자가 존재하지 않습니다."
 
 #: judge/views/organization.py:377
 #, python-format
-msgid "The user you are trying to kick is not in organization: %s."
+msgid "The user you are trying to kick is not in organization: %s"
 msgstr "삭제하려는 유저: %s 가 조직에 없습니다."
 
 #: judge/views/organization.py:410
@@ -3187,11 +3213,6 @@ msgstr "그런 사설이 없습니다"
 #, python-format
 msgid "Could not find an editorial with the code \"%s\"."
 msgstr ""
-
-#: judge/views/problem.py:271 templates/contest/contest.html:191
-#: templates/user/user-tabs.html:5 templates/user/users-table.html:23
-msgid "Problems"
-msgstr "문제"
 
 #: judge/views/problem.py:568 judge/views/problem.py:576
 #, python-format
@@ -3557,14 +3578,9 @@ msgstr "순위표"
 msgid "You have been successfully logged out."
 msgstr ""
 
-#: judge/views/widgets.py:52 judge/views/widgets.py:62
-#, python-format
-msgid "Invalid upstream data: %s"
-msgstr "잘못된 업스트림 데이터: %s"
-
-#: judge/views/widgets.py:72
-msgid "Bad latitude or longitude"
-msgstr "잘못된 위도 또는 경도"
+#: judge/views/user.py:518
+msgid "You have sent too many password reset requests. Please try again later."
+msgstr ""
 
 #: templates/admin/judge/contest/change_form.html:9
 msgid "Are you sure you want to rejudge ALL the submissions?"
@@ -3627,7 +3643,7 @@ msgstr "로그아웃"
 msgid "Log in"
 msgstr "로그인"
 
-#: templates/base.html:237 templates/registration/registration_form.html:175
+#: templates/base.html:237 templates/registration/registration_form.html:181
 msgid "or"
 msgstr "또는"
 
@@ -3694,9 +3710,19 @@ msgstr "현재로서는 명확한 설명이 없습니다."
 msgid "Ongoing contests"
 msgstr "진행중인 대회"
 
+#: templates/blog/list.html:163
+#, python-format
+msgid "Ends in %(countdown)s."
+msgstr ""
+
 #: templates/blog/list.html:173
 msgid "Upcoming contests"
 msgstr "진행예정 대회"
+
+#: templates/blog/list.html:181 templates/contest/list.html:257
+#, python-format
+msgid "Starting in %(countdown)s."
+msgstr ""
 
 #: templates/blog/list.html:190
 msgid "Comment stream"
@@ -3714,7 +3740,7 @@ msgstr ""
 msgid "New tickets"
 msgstr ""
 
-#: templates/comments/list.html:2 templates/user/prepare-data.html:97
+#: templates/comments/list.html:2 templates/user/prepare-data.html:98
 msgid "Comments"
 msgstr "코멘트"
 
@@ -3777,7 +3803,7 @@ msgstr "새 댓글"
 msgid "Invalid comment body."
 msgstr "유효하지 않은 댓글입니다."
 
-#: templates/comments/list.html:159
+#: templates/comments/list.html:159 templates/ticket/ticket.html:356
 msgid "Post!"
 msgstr "등록!"
 
@@ -3912,7 +3938,7 @@ msgstr "복사"
 msgid "Leave contest"
 msgstr "대회 나가기"
 
-#: templates/contest/contest-tabs.html:45 templates/contest/list.html:306
+#: templates/contest/contest-tabs.html:45 templates/contest/list.html:308
 msgid "Virtual join"
 msgstr "모의 참여"
 
@@ -3929,7 +3955,7 @@ msgstr "콘테스트 참여"
 msgid "Spectate contest"
 msgstr "대회 관전"
 
-#: templates/contest/contest-tabs.html:80 templates/contest/list.html:149
+#: templates/contest/contest-tabs.html:80 templates/contest/list.html:151
 msgid "You cannot join this contest."
 msgstr ""
 
@@ -3937,13 +3963,43 @@ msgstr ""
 msgid "Log in to participate"
 msgstr "참여하려면 로그인하세요"
 
+#: templates/contest/contest.html:33
+#, python-format
+msgid "Spectating, contest ends in %(countdown)s."
+msgstr ""
+
+#: templates/contest/contest.html:35
+#, python-format
+msgid "Participating virtually, %(countdown)s remaining."
+msgstr ""
+
 #: templates/contest/contest.html:37
 msgid "Participating virtually."
 msgstr "가상으로 참여합니다."
 
+#: templates/contest/contest.html:41
+#, python-format
+msgid "Starting in %(countdown)s"
+msgstr ""
+
 #: templates/contest/contest.html:43
 msgid "Contest is over."
 msgstr "콘테스트가 종료되었습니다."
+
+#: templates/contest/contest.html:47
+#, python-format
+msgid "Your time is up! Contest ends in %(countdown)s."
+msgstr ""
+
+#: templates/contest/contest.html:49
+#, python-format
+msgid "You have %(countdown)s remaining."
+msgstr ""
+
+#: templates/contest/contest.html:52
+#, python-format
+msgid "Contest ends in %(countdown)s."
+msgstr ""
 
 #: templates/contest/contest.html:58 templates/contest/contest.html:60
 msgid "F j, Y, G:i T"
@@ -4072,8 +4128,8 @@ msgstr "콘테스트에 참여하시려면 **참가코드가 필요합니다**."
 msgid "AC Rate"
 msgstr "정답률"
 
-#: templates/contest/contest.html:198 templates/contest/list.html:164
-#: templates/contest/list.html:206 templates/contest/list.html:283
+#: templates/contest/contest.html:198 templates/contest/list.html:166
+#: templates/contest/list.html:208 templates/contest/list.html:285
 #: templates/problem/list.html:209 templates/problem/list.html:241
 msgid "Users"
 msgstr "유저"
@@ -4107,36 +4163,56 @@ msgstr "비공개"
 msgid "rated"
 msgstr "순위"
 
-#: templates/contest/list.html:137 templates/contest/list.html:149
+#: templates/contest/list.html:116
+#, python-format
+msgid "%(time_limit)s window"
+msgstr "%(time_limit)s 기간"
+
+#: templates/contest/list.html:119
+#, python-format
+msgid "%(duration)s long"
+msgstr ""
+
+#: templates/contest/list.html:139 templates/contest/list.html:151
 msgid "Join"
 msgstr "참가"
 
-#: templates/contest/list.html:143
+#: templates/contest/list.html:145
 msgid "Spectate"
 msgstr "관전"
 
-#: templates/contest/list.html:159
+#: templates/contest/list.html:161
 msgid "Active Contests"
 msgstr "대회 활성화"
 
-#: templates/contest/list.html:163 templates/contest/list.html:205
-#: templates/contest/list.html:243 templates/contest/list.html:280
+#: templates/contest/list.html:165 templates/contest/list.html:207
+#: templates/contest/list.html:245 templates/contest/list.html:282
 msgid "Contest"
 msgstr "대회"
 
-#: templates/contest/list.html:201
+#: templates/contest/list.html:182
+#, python-format
+msgid "Window ends in %(countdown)s"
+msgstr ""
+
+#: templates/contest/list.html:184 templates/contest/list.html:223
+#, python-format
+msgid "Ends in %(countdown)s"
+msgstr ""
+
+#: templates/contest/list.html:203
 msgid "Ongoing Contests"
 msgstr "진행중인 대회"
 
-#: templates/contest/list.html:238
+#: templates/contest/list.html:240
 msgid "Upcoming Contests"
 msgstr "진행예정 대회"
 
-#: templates/contest/list.html:266
+#: templates/contest/list.html:268
 msgid "There are no scheduled contests at this time."
 msgstr "예정된 대회가 없습니다."
 
-#: templates/contest/list.html:272
+#: templates/contest/list.html:274
 msgid "Past Contests"
 msgstr "지난 대회들"
 
@@ -4158,7 +4234,7 @@ msgid "Joining this contest will leave %(contest)s."
 msgstr "이 콘테스트에 참가하면 %(contest)s 를 떠나게 됩니다."
 
 #: templates/contest/moss.html:28
-msgid "Are you sure you want MOSS the contest?"
+msgid "Are you sure you want to MOSS the contest?"
 msgstr ""
 
 #: templates/contest/moss.html:33
@@ -4260,8 +4336,8 @@ msgid "Language AC Rate"
 msgstr "언어 AC 비율"
 
 #: templates/license.html:12
-msgid "Source:"
-msgstr "소스:"
+msgid "Visit source"
+msgstr ""
 
 #: templates/newsletter/common.html:6
 #: templates/newsletter/subscription_unsubscribe_activated.html:3
@@ -4442,21 +4518,9 @@ msgstr "가입 사유:"
 msgid "Request"
 msgstr "요청"
 
-#: templates/organization/requests/tabs.html:4
-msgid "Pending"
-msgstr "보류 중"
-
 #: templates/organization/requests/tabs.html:7
 msgid "Log"
 msgstr ""
-
-#: templates/organization/requests/tabs.html:10
-msgid "Approved"
-msgstr "승인됨"
-
-#: templates/organization/requests/tabs.html:13
-msgid "Rejected"
-msgstr "거절됨"
 
 #: templates/organization/users-table.html:15
 msgid "Kick"
@@ -4892,11 +4956,12 @@ msgstr ""
 msgid "To reset the password for your account \"%(username)s\", click the button below."
 msgstr ""
 
-#: templates/registration/password_reset_email.html:15
-msgid "See you soon! If you have problems resetting your email, feel free to shoot us an email at"
+#: templates/registration/password_reset_email.html:16
+#, python-format
+msgid "See you soon! If you have problems resetting your password, feel free to shoot us an email at %(email)s."
 msgstr ""
 
-#: templates/registration/password_reset_email.html:17
+#: templates/registration/password_reset_email.html:19
 msgid "See you soon!"
 msgstr ""
 
@@ -4927,7 +4992,7 @@ msgstr ""
 msgid "Password reset on %(site_name)s"
 msgstr ""
 
-#: templates/registration/profile_creation.html:36
+#: templates/registration/profile_creation.html:48
 #: templates/registration/username_select.html:7
 msgid "Continue >"
 msgstr "계속"
@@ -4940,41 +5005,37 @@ msgstr ""
 msgid "You have successfully been registered. An email has been sent to the email address you provided to confirm your registration."
 msgstr ""
 
-#: templates/registration/registration_form.html:164
+#: templates/registration/registration_form.html:170
 msgid "(again, for confirmation)"
 msgstr ""
 
-#: templates/registration/registration_form.html:171
+#: templates/registration/registration_form.html:177
 msgid "(select your closest major city)"
 msgstr ""
 
-#: templates/registration/registration_form.html:176
+#: templates/registration/registration_form.html:182
 msgid "pick from map"
 msgstr "지도에서 고르기"
 
-#: templates/registration/registration_form.html:181
+#: templates/registration/registration_form.html:187
 msgid "Default language"
 msgstr "기본 언어"
 
-#: templates/registration/registration_form.html:184
+#: templates/registration/registration_form.html:190
 #: templates/user/edit-profile.html:314
 msgid "Affiliated organizations"
 msgstr ""
 
-#: templates/registration/registration_form.html:190
+#: templates/registration/registration_form.html:196
 #: templates/user/edit-profile.html:328
 msgid "Notify me about upcoming contests"
 msgstr ""
 
-#: templates/registration/registration_form.html:204
-msgid "By registering, you agree to our"
+#: templates/registration/registration_form.html:210
+msgid "By registering, you agree to our [Terms & Conditions][0]."
 msgstr ""
 
-#: templates/registration/registration_form.html:205
-msgid "Terms & Conditions"
-msgstr "이용 약관 & 조건"
-
-#: templates/registration/registration_form.html:208
+#: templates/registration/registration_form.html:213
 msgid "Register!"
 msgstr "등록"
 
@@ -4983,7 +5044,8 @@ msgid "To protect your account, you must first authenticate before you can disab
 msgstr "계정을 보호하기 위해서, 이중(2-Factor) 인증을 비활성화 하려면 먼저 인증해야 합니다."
 
 #: templates/registration/totp_disable.html:38
-msgid "Enter the 6-digit code generated by your app or one of your 16-digit scratch codes:"
+#: templates/registration/two_factor_auth.html:79
+msgid "Enter the 6-digit code generated by your app or one of your 16-character scratch codes:"
 msgstr ""
 
 #: templates/registration/totp_disable.html:41
@@ -5055,10 +5117,6 @@ msgstr ""
 #: templates/registration/two_factor_auth.html:54
 #: templates/user/edit-profile.html:189
 msgid "Failed to contact server."
-msgstr ""
-
-#: templates/registration/two_factor_auth.html:79
-msgid "Enter the 6-digit code generated by your app or one of your 16-character scratch codes:"
 msgstr ""
 
 #: templates/registration/two_factor_auth.html:81
@@ -5232,19 +5290,23 @@ msgid "Execution Results"
 msgstr ""
 
 #: templates/submission/status-testcases.html:51
-msgid "Batch "
+#, python-format
+msgid "Batch #%(id)d"
 msgstr ""
 
 #: templates/submission/status-testcases.html:64
-msgid "Case"
+#, python-format
+msgid "Case #%(id)d:"
 msgstr ""
 
 #: templates/submission/status-testcases.html:66
-msgid "Pretest"
+#, python-format
+msgid "Pretest #%(id)d:"
 msgstr ""
 
 #: templates/submission/status-testcases.html:68
-msgid "Test case"
+#, python-format
+msgid "Test case #%(id)d:"
 msgstr ""
 
 #: templates/submission/status-testcases.html:101
@@ -5365,10 +5427,6 @@ msgstr "티켓을 활성화 해주셔서 감사합니다."
 msgid "Please keep in mind that this form is for reporting issues with a problem statement, and not for asking for help. If you require assistance on solving a problem, ask in the comments instead."
 msgstr "이 양식은 도움을 요청하는 것이 아닌 문제 기술의 문제점을 보고하기 위한 것임을 명심하세요. 문제 해결에 도움이 필요하다면 댓글로 요청하세요."
 
-#: templates/ticket/ticket.html:356
-msgid "Post"
-msgstr "등록"
-
 #: templates/ticket/ticket.html:364
 msgid "Associated object"
 msgstr "관련 객체"
@@ -5414,7 +5472,7 @@ msgid "It also allows access to your account without Two-factor Authentication."
 msgstr "또한 2단계 인증 없이 계정에 접근할 수 있습니다."
 
 #: templates/user/edit-profile.html:116
-msgid "You will not be able to view your api token after you leave this page!"
+msgid "You will not be able to view your API token after you leave this page!"
 msgstr "이 페이지를 나간 후에는 API 토큰을 볼 수 없습니다."
 
 #: templates/user/edit-profile.html:117 templates/user/edit-profile.html:211
@@ -5525,13 +5583,8 @@ msgstr "프로필 업데이트"
 
 #: templates/user/pp-row.html:26
 #, python-format
-msgid "%(pp).1fpp"
-msgstr "%(pp).1fpp"
-
-#: templates/user/pp-row.html:28
-#, python-format
-msgid "%(pp).0fpp"
-msgstr "%(pp).0fpp"
+msgid "weighted %(percent)s (%(pp)spp)"
+msgstr ""
 
 #: templates/user/prepare-data.html:64
 msgid "Are you sure you want to prepare a download?"
@@ -5545,31 +5598,41 @@ msgstr "데이터를 준비하고 있습니다."
 msgid "Track progress"
 msgstr "진행사항 추적"
 
-#: templates/user/prepare-data.html:86
+#: templates/user/prepare-data.html:85
+#, python-format
+msgid "You may only prepare a new data download once every %(duration)s."
+msgstr ""
+
+#: templates/user/prepare-data.html:87
 msgid "Once your data is ready, you will find a download link on this page."
 msgstr "데이터가 준비되면, 이 페이지에서 다운로드 링크를 찾을 수 있습니다."
 
-#: templates/user/prepare-data.html:103
+#: templates/user/prepare-data.html:104
 msgid "Submissions"
 msgstr "제출"
 
-#: templates/user/prepare-data.html:120
+#: templates/user/prepare-data.html:121
 msgid "Prepare new download"
 msgstr "새로운 다운로드 준비"
 
-#: templates/user/prepare-data.html:122
+#: templates/user/prepare-data.html:123
 msgid "Prepare download"
 msgstr "다운로드 준비"
 
-#: templates/user/prepare-data.html:126
+#: templates/user/prepare-data.html:127
 msgid "Download prepared data"
 msgstr "준비된 데이터 다운로드"
 
-#: templates/user/prepare-data.html:132
+#: templates/user/prepare-data.html:133
 msgid "Your data is ready!"
 msgstr "이제 데이터를 사용할 수 있습니다!"
 
-#: templates/user/prepare-data.html:136
+#: templates/user/prepare-data.html:135
+#, python-format
+msgid "You will need to wait %(countdown)s to prepare a new data download."
+msgstr ""
+
+#: templates/user/prepare-data.html:137
 msgid "Download data"
 msgstr "데이터 다운로드"
 
