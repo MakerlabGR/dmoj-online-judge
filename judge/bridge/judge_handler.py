@@ -24,10 +24,7 @@ SubmissionData = namedtuple('SubmissionData', 'time memory short_circuit pretest
 
 
 def _ensure_connection():
-    try:
-        db.connection.cursor().execute('SELECT 1').fetchall()
-    except Exception:
-        db.connection.close()
+    db.connection.close_if_unusable_or_obsolete()
 
 
 class JudgeHandler(ZlibPacketHandler):
@@ -61,6 +58,7 @@ class JudgeHandler(ZlibPacketHandler):
         self.time_delta = None
         self.load = 1e100
         self.name = None
+        self.is_disabled = False
         self.batch_id = None
         self.in_batch = False
         self._stop_ping = threading.Event()
@@ -96,15 +94,20 @@ class JudgeHandler(ZlibPacketHandler):
 
     def _authenticate(self, id, key):
         try:
-            judge = Judge.objects.get(name=id, is_blocked=False)
+            judge = Judge.objects.get(name=id)
         except Judge.DoesNotExist:
-            result = False
-        else:
-            result = hmac.compare_digest(judge.auth_key, key)
+            return False
 
-        if not result:
+        if not hmac.compare_digest(judge.auth_key, key):
+            logger.warning('Judge authentication failure: %s', self.client_address)
             json_log.warning(self._make_json_log(action='auth', judge=id, info='judge failed authentication'))
-        return result
+            return False
+
+        if judge.is_blocked:
+            json_log.warning(self._make_json_log(action='auth', judge=id, info='judge authenticated but is blocked'))
+            return False
+
+        return True
 
     def _connected(self):
         judge = self.judge = Judge.objects.get(name=self.name)
@@ -112,6 +115,9 @@ class JudgeHandler(ZlibPacketHandler):
         judge.online = True
         judge.problems.set(Problem.objects.filter(code__in=list(self.problems.keys())))
         judge.runtimes.set(Language.objects.filter(key__in=list(self.executors.keys())))
+
+        # Cache is_disabled for faster access
+        self.is_disabled = judge.is_disabled
 
         # Delete now in case we somehow crashed and left some over from the last connection
         RuntimeVersion.objects.filter(judge=judge).delete()
@@ -150,7 +156,6 @@ class JudgeHandler(ZlibPacketHandler):
             return
 
         if not self._authenticate(packet['id'], packet['key']):
-            logger.warning('Authentication failure: %s', self.client_address)
             self.close()
             return
 
@@ -167,7 +172,8 @@ class JudgeHandler(ZlibPacketHandler):
         self._connected()
 
     def can_judge(self, problem, executor, judge_id=None):
-        return problem in self.problems and executor in self.executors and (not judge_id or self.name == judge_id)
+        return problem in self.problems and executor in self.executors and  \
+            ((not judge_id and not self.is_disabled) or self.name == judge_id)
 
     @property
     def working(self):
@@ -298,7 +304,7 @@ class JudgeHandler(ZlibPacketHandler):
             logger.exception('Error in packet handling (Judge-side): %s', self.name)
             self._packet_exception()
             # You can't crash here because you aren't so sure about the judges
-            # not being malicious or simply malforms. THIS IS A SERVER!
+            # not being malicious or simply malformed. THIS IS A SERVER!
 
     def _packet_exception(self):
         json_log.exception(self._make_json_log(sub=self._working, info='packet processing exception'))
@@ -625,3 +631,6 @@ class JudgeHandler(ZlibPacketHandler):
                 'user': data['user_id'], 'problem': data['problem_id'],
                 'status': data['status'], 'language': data['language__key'],
             })
+
+    def on_cleanup(self):
+        db.connection.close()

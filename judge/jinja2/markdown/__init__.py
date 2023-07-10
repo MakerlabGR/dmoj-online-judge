@@ -4,6 +4,7 @@ from html import unescape
 from urllib.parse import urlparse
 
 import mistune
+from bleach.css_sanitizer import CSSSanitizer
 from bleach.sanitizer import Cleaner
 from django.conf import settings
 from lxml import html
@@ -87,7 +88,7 @@ class AwesomeRenderer(MathRenderer, mistune.Renderer):
                 return '<pre>%s</pre>' % mistune.escape(latex, smart_amp=False)
             elif 'error' not in result:
                 img = ('''<img src="%(svg)s" onerror="this.src='%(png)s';this.onerror=null"'''
-                       'width="%(width)s" height="%(height)s"%(tail)s>') % {
+                       'class="tex-full" width="%(width)s" height="%(height)s"%(tail)s>') % {
                     'svg': result['svg'], 'png': result['png'],
                     'width': result['meta']['width'], 'height': result['meta']['height'],
                     'tail': ' /' if self.options.get('use_xhtml') else '',
@@ -95,7 +96,7 @@ class AwesomeRenderer(MathRenderer, mistune.Renderer):
                 style = ['max-width: 100%',
                          'height: %s' % result['meta']['height'],
                          'max-height: %s' % result['meta']['height'],
-                         'width: %s' % result['meta']['height']]
+                         'width: %s' % result['meta']['width']]
                 if 'inline' in attr:
                     tag = 'span'
                 else:
@@ -117,8 +118,9 @@ def get_cleaner(name, params):
     if name in cleaner_cache:
         return cleaner_cache[name]
 
-    if params.get('styles') is True:
-        params['styles'] = all_styles
+    styles = params.pop('styles', None)
+    if styles:
+        params['css_sanitizer'] = CSSSanitizer(allowed_css_properties=all_styles if styles is True else styles)
 
     if params.pop('mathml', False):
         params['tags'] = params.get('tags', []) + mathml_tags

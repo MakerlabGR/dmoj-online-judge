@@ -12,7 +12,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 from django.db import IntegrityError
 from django.db.models import BooleanField, Case, Count, F, FloatField, IntegerField, Max, Min, Q, Sum, Value, When
-from django.db.models.expressions import CombinedExpression
+from django.db.models.expressions import CombinedExpression, Exists, OuterRef
 from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.template.defaultfilters import date as date_filter
@@ -80,17 +80,34 @@ class ContestList(QueryStringSortMixin, DiggPaginatorMixin, TitleMixin, ContestL
         return timezone.now()
 
     def _get_queryset(self):
-        return super().get_queryset().prefetch_related(
+        queryset = super().get_queryset().prefetch_related(
             'tags',
             'organizations',
             'authors',
             'curators',
             'testers',
             'spectators',
+            'classes',
+        )
+
+        profile = self.request.profile
+        if not profile:
+            return queryset
+
+        return queryset.annotate(
+            editor_or_tester=Exists(Contest.authors.through.objects.filter(contest=OuterRef('pk'), profile=profile))
+            .bitor(Exists(Contest.curators.through.objects.filter(contest=OuterRef('pk'), profile=profile)))
+            .bitor(Exists(Contest.testers.through.objects.filter(contest=OuterRef('pk'), profile=profile))),
+            completed_contest=Exists(ContestParticipation.objects.filter(contest=OuterRef('pk'), user=profile,
+                                                                         virtual=ContestParticipation.LIVE)),
         )
 
     def get_queryset(self):
         return self._get_queryset().order_by(self.order, 'key').filter(end_time__lt=self._now)
+
+    def get_paginator(self, queryset, per_page, orphans=0, allow_empty_first_page=True, **kwargs):
+        return super().get_paginator(queryset, per_page, orphans, allow_empty_first_page,
+                                     count=self.get_queryset().values('id').count(), **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(ContestList, self).get_context_data(**kwargs)
@@ -443,12 +460,11 @@ class ContestLeave(LoginRequiredMixin, ContestMixin, SingleObjectMixin, View):
         return HttpResponseRedirect(reverse('contest_view', args=(contest.key,)))
 
 
-ContestDay = namedtuple('ContestDay', 'date weekday is_pad is_today starts ends oneday')
+ContestDay = namedtuple('ContestDay', 'date is_pad is_today starts ends oneday')
 
 
 class ContestCalendar(TitleMixin, ContestListMixin, TemplateView):
     firstweekday = SUNDAY
-    weekday_classes = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat']
     template_name = 'contest/calendar.html'
 
     def get(self, request, *args, **kwargs):
@@ -456,7 +472,7 @@ class ContestCalendar(TitleMixin, ContestListMixin, TemplateView):
             self.year = int(kwargs['year'])
             self.month = int(kwargs['month'])
         except (KeyError, ValueError):
-            raise ImproperlyConfigured(_('ContestCalendar requires integer year and month'))
+            raise ImproperlyConfigured('ContestCalendar requires integer year and month')
         self.today = timezone.now().date()
         return self.render()
 
@@ -484,9 +500,9 @@ class ContestCalendar(TitleMixin, ContestListMixin, TemplateView):
         starts, ends, oneday = self.get_contest_data(make_aware(datetime.combine(calendar[0][0], time.min)),
                                                      make_aware(datetime.combine(calendar[-1][-1], time.min)))
         return [[ContestDay(
-            date=date, weekday=self.weekday_classes[weekday], is_pad=date.month != self.month,
+            date=date, is_pad=date.month != self.month,
             is_today=date == self.today, starts=starts[date], ends=ends[date], oneday=oneday[date],
-        ) for weekday, date in enumerate(week)] for week in calendar]
+        ) for date in week] for week in calendar]
 
     def get_context_data(self, **kwargs):
         context = super(ContestCalendar, self).get_context_data(**kwargs)
@@ -752,8 +768,10 @@ class ContestParticipationList(LoginRequiredMixin, ContestRankingBase):
 
     def get_title(self):
         if self.profile == self.request.profile:
-            return _('Your participation in %s') % self.object.name
-        return _("%s's participation in %s") % (self.profile.username, self.object.name)
+            return _('Your participation in %(contest)s') % {'contest': self.object.name}
+        return _("%(user)s's participation in %(contest)s") % {
+            'user': self.profile.username, 'contest': self.object.name,
+        }
 
     def get_ranking_list(self):
         if not self.object.can_see_full_scoreboard(self.request.user) and self.profile != self.request.profile:

@@ -1,3 +1,4 @@
+from enum import IntEnum
 from operator import attrgetter
 
 from django.conf import settings
@@ -6,8 +7,7 @@ from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
 from django.db import models
-from django.db.models import CASCADE, F, Q, QuerySet, SET_NULL
-from django.db.models.expressions import RawSQL
+from django.db.models import CASCADE, Exists, F, FilteredRelation, OuterRef, Q, SET_NULL
 from django.db.models.functions import Coalesce
 from django.urls import reverse
 from django.utils import timezone
@@ -18,10 +18,9 @@ from judge.fulltext import SearchQuerySet
 from judge.models.profile import Organization, Profile
 from judge.models.runtime import Language
 from judge.user_translations import gettext as user_gettext
-from judge.utils.raw_sql import RawSQLColumn, unique_together_left_join
 
 __all__ = ['ProblemGroup', 'ProblemType', 'Problem', 'ProblemTranslation', 'ProblemClarification', 'License',
-           'Solution', 'SubmissionSourceAccess', 'TranslatedProblemQuerySet', 'TranslatedProblemForeignKeyQuerySet']
+           'Solution', 'SubmissionSourceAccess', 'TranslatedProblemQuerySet']
 
 
 def disallowed_characters_validator(text):
@@ -63,8 +62,8 @@ class License(models.Model):
     link = models.CharField(max_length=256, verbose_name=_('link'))
     name = models.CharField(max_length=256, verbose_name=_('full name'))
     display = models.CharField(max_length=256, blank=True, verbose_name=_('short name'),
-                               help_text=_('Displayed on pages under this license'))
-    icon = models.CharField(max_length=256, blank=True, verbose_name=_('icon'), help_text=_('URL to the icon'))
+                               help_text=_('Displayed on pages under this license.'))
+    icon = models.CharField(max_length=256, blank=True, verbose_name=_('icon'), help_text=_('URL to the icon.'))
     text = models.TextField(verbose_name=_('license text'))
 
     def __str__(self):
@@ -83,22 +82,9 @@ class TranslatedProblemQuerySet(SearchQuerySet):
         super(TranslatedProblemQuerySet, self).__init__(('code', 'name', 'description'), **kwargs)
 
     def add_i18n_name(self, language):
-        queryset = self._clone()
-        alias = unique_together_left_join(queryset, ProblemTranslation, 'problem', 'language', language)
-        return queryset.annotate(i18n_name=Coalesce(RawSQL('%s.name' % alias, ()), F('name'),
-                                                    output_field=models.CharField()))
-
-
-class TranslatedProblemForeignKeyQuerySet(QuerySet):
-    def add_problem_i18n_name(self, key, language, name_field=None):
-        queryset = self._clone() if name_field is None else self.annotate(_name=F(name_field))
-        alias = unique_together_left_join(queryset, ProblemTranslation, 'problem', 'language', language,
-                                          parent_model=Problem)
-        # You must specify name_field if Problem is not yet joined into the QuerySet.
-        kwargs = {key: Coalesce(RawSQL('%s.name' % alias, ()),
-                                F(name_field) if name_field else RawSQLColumn(Problem, 'name'),
-                                output_field=models.CharField())}
-        return queryset.annotate(**kwargs)
+        return self.annotate(i18n_translation=FilteredRelation(
+            'translations', condition=Q(translations__language=language),
+        )).annotate(i18n_name=Coalesce(F('i18n_translation__name'), F('name'), output_field=models.CharField()))
 
 
 class SubmissionSourceAccess:
@@ -106,6 +92,18 @@ class SubmissionSourceAccess:
     SOLVED = 'S'
     ONLY_OWN = 'O'
     FOLLOW = 'F'
+
+
+class VotePermission(IntEnum):
+    NONE = 0
+    VIEW = 1
+    VOTE = 2
+
+    def can_view(self):
+        return self >= VotePermission.VIEW
+
+    def can_vote(self):
+        return self >= VotePermission.VOTE
 
 
 class Problem(models.Model):
@@ -118,11 +116,10 @@ class Problem(models.Model):
 
     code = models.CharField(max_length=20, verbose_name=_('problem code'), unique=True,
                             validators=[RegexValidator('^[a-z0-9]+$', _('Problem code must be ^[a-z0-9]+$'))],
-                            help_text=_('A short, unique code for the problem, '
-                                        'used in the url after /problem/'))
+                            help_text=_('A short, unique code for the problem, used in the URL after /problem/'))
     name = models.CharField(max_length=100, verbose_name=_('problem name'), db_index=True,
-                            help_text=_('The full name of the problem, '
-                                        'as shown in the problem list.'))
+                            help_text=_('The full name of the problem, as shown in the problem list.'),
+                            validators=[disallowed_characters_validator])
     description = models.TextField(verbose_name=_('problem body'), validators=[disallowed_characters_validator])
     authors = models.ManyToManyField(Profile, verbose_name=_('creators'), blank=True, related_name='authored_problems',
                                      help_text=_('These users will be able to edit the problem, '
@@ -134,8 +131,7 @@ class Problem(models.Model):
                                      help_text=_(
                                          'These users will be able to view the private problem, but not edit it.'))
     types = models.ManyToManyField(ProblemType, verbose_name=_('problem types'),
-                                   help_text=_('The type of problem, '
-                                               "as shown on the problem's page."))
+                                   help_text=_("The type of problem, as shown on the problem's page."))
     group = models.ForeignKey(ProblemGroup, verbose_name=_('problem group'), on_delete=CASCADE,
                               help_text=_('The group of problem, shown under Category in the problem list.'))
     time_limit = models.FloatField(verbose_name=_('time limit'),
@@ -160,7 +156,8 @@ class Problem(models.Model):
     is_manually_managed = models.BooleanField(verbose_name=_('manually managed'), db_index=True, default=False,
                                               help_text=_('Whether judges should be allowed to manage data or not.'))
     date = models.DateTimeField(verbose_name=_('date of publishing'), null=True, blank=True, db_index=True,
-                                help_text=_("Doesn't have magic ability to auto-publish due to backward compatibility"))
+                                help_text=_(
+                                    "Doesn't have the magic ability to auto-publish due to backward compatibility."))
     banned_users = models.ManyToManyField(Profile, verbose_name=_('personae non gratae'), blank=True,
                                           help_text=_('Bans the selected users from submitting to this problem.'))
     license = models.ForeignKey(License, null=True, blank=True, on_delete=SET_NULL, verbose_name=_('license'),
@@ -283,21 +280,37 @@ class Problem(models.Model):
             q = Q(is_public=True)
             if not (user.has_perm('judge.see_organization_problem') or edit_public_problem):
                 # Either not organization private or in the organization.
-                q &= (
-                    Q(is_organization_private=False) |
-                    Q(is_organization_private=True, organizations__in=user.profile.organizations.all())
+                q &= Q(is_organization_private=False) | cls.organization_filter_q(
+                    # Avoids needlessly joining Organization
+                    Profile.organizations.through.objects.filter(profile=user.profile).values('organization_id'),
                 )
 
             if edit_own_problem:
-                q |= Q(is_organization_private=True, organizations__in=user.profile.admin_of.all())
+                q |= cls.organization_filter_q(
+                    # Avoids needlessly joining Organization
+                    Organization.admins.through.objects.filter(profile=user.profile).values('organization_id'),
+                )
 
-            # Authors, curators, and testers should always have access, so OR at the very end.
-            q |= Q(authors=user.profile)
-            q |= Q(curators=user.profile)
-            q |= Q(testers=user.profile)
+            # Authors, curators, and testers should always have access.
+            q = cls.q_add_author_curator_tester(q, user.profile)
             queryset = queryset.filter(q)
 
         return queryset
+
+    @classmethod
+    def q_add_author_curator_tester(cls, q, profile):
+        # This is way faster than the obvious |= Q(authors=profile) et al. because we are not doing
+        # joins and forcing the user to clean it up with .distinct().
+        q |= Exists(Problem.authors.through.objects.filter(problem=OuterRef('pk'), profile=profile))
+        q |= Exists(Problem.curators.through.objects.filter(problem=OuterRef('pk'), profile=profile))
+        q |= Exists(Problem.testers.through.objects.filter(problem=OuterRef('pk'), profile=profile))
+        return q
+
+    @classmethod
+    def organization_filter_q(cls, queryset):
+        q = Q(is_organization_private=True)
+        q &= Exists(Problem.organizations.through.objects.filter(problem=OuterRef('pk'), organization__in=queryset))
+        return q
 
     @classmethod
     def get_public_problems(cls):
@@ -451,6 +464,32 @@ class Problem(models.Model):
 
     save.alters_data = True
 
+    def is_solved_by(self, user):
+        # Return true if a full AC submission to the problem from the user exists.
+        return self.submission_set.filter(user=user.profile, result='AC', points__gte=F('problem__points')).exists()
+
+    def vote_permission_for_user(self, user):
+        if not user.is_authenticated:
+            return VotePermission.NONE
+
+        # If the user is in contest, nothing should be shown.
+        if user.profile.current_contest:
+            return VotePermission.NONE
+
+        # If the user is not allowed to vote.
+        if user.profile.is_unlisted or user.profile.is_banned_from_problem_voting:
+            return VotePermission.VIEW
+
+        # If the user is banned from submitting to the problem.
+        if self.banned_users.filter(pk=user.pk).exists():
+            return VotePermission.VIEW
+
+        # If the user has not solved the problem.
+        if not self.is_solved_by(user):
+            return VotePermission.VIEW
+
+        return VotePermission.VOTE
+
     class Meta:
         permissions = (
             ('see_private_problem', _('See hidden problems')),
@@ -507,8 +546,8 @@ class LanguageLimit(models.Model):
 
 
 class Solution(models.Model):
-    problem = models.OneToOneField(Problem, on_delete=SET_NULL, verbose_name=_('associated problem'),
-                                   null=True, blank=True, related_name='solution')
+    problem = models.OneToOneField(Problem, on_delete=CASCADE, verbose_name=_('associated problem'),
+                                   blank=True, related_name='solution')
     is_public = models.BooleanField(verbose_name=_('public visibility'), default=False)
     publish_on = models.DateTimeField(verbose_name=_('publish date'))
     authors = models.ManyToManyField(Profile, verbose_name=_('authors'), blank=True)
@@ -539,3 +578,28 @@ class Solution(models.Model):
         )
         verbose_name = _('solution')
         verbose_name_plural = _('solutions')
+
+
+class ProblemPointsVote(models.Model):
+    points = models.IntegerField(
+        verbose_name=_('proposed points'),
+        help_text=_('The amount of points the voter thinks this problem deserves.'),
+        validators=[
+            MinValueValidator(settings.DMOJ_PROBLEM_MIN_USER_POINTS_VOTE),
+            MaxValueValidator(settings.DMOJ_PROBLEM_MAX_USER_POINTS_VOTE),
+        ],
+    )
+    voter = models.ForeignKey(Profile, verbose_name=_('voter'), related_name='problem_points_votes', on_delete=CASCADE)
+    problem = models.ForeignKey(Problem, verbose_name=_('problem'), related_name='problem_points_votes',
+                                on_delete=CASCADE)
+    vote_time = models.DateTimeField(verbose_name=_('vote time'), help_text=_('The time this vote was cast.'),
+                                     auto_now_add=True)
+    note = models.TextField(verbose_name=_('note'), help_text=_('Justification for problem point value.'),
+                            max_length=8192, blank=True, default='')
+
+    class Meta:
+        verbose_name = _('problem vote')
+        verbose_name_plural = _('problem votes')
+
+    def __str__(self):
+        return _('Points vote by %(voter)s for %(problem)s') % {'voter': self.voter, 'problem': self.problem}

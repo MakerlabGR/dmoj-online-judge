@@ -9,133 +9,6 @@
 
 {% block users_media %}
     <style>
-        #users-table .username {
-            min-width: 20em;
-        }
-
-        #users-table .rating-column {
-            min-width: 3em;
-        }
-
-        #users-table td {
-            height: 2.5em;
-        }
-
-        #users-table a {
-            display: block;
-        }
-
-        .userinfo a, .user-name a, .user-name form {
-            display: inline !important;
-        }
-
-        #users-table th a, #users-table th a:link, #users-table th a:visited {
-            color: white;
-        }
-
-        #users-table th a:hover {
-            color: #0F0;
-        }
-
-        #users-table td a:hover {
-            text-decoration: underline;
-        }
-
-        .rank {
-            min-width: 2.5em
-        }
-
-        .points {
-            min-width: 4em;
-        }
-
-        .disqualified {
-            background-color: #ffa8a8 !important;
-        }
-
-        .full-score, .full-score a {
-            font-weight: bold;
-            color: green;
-        }
-
-        .partial-score, .partial-score a {
-            color: green;
-        }
-
-        .failed-score, .failed-score a {
-            font-weight: bold;
-            color: red;
-        }
-
-        .pretest-full-score, .pretest-full-score a {
-            font-weight: bold;
-            color: #2980b9;
-        }
-
-        .pretest-partial-score, .pretest-partial-score a {
-            color: #2980b9;
-        }
-
-        .pretest-failed-score, .pretest-failed-score a {
-            font-weight: bold;
-            color: red;
-        }
-
-        .user-points, .user-points a {
-            font-weight: bold;
-            color: black;
-        }
-
-        .solving-time {
-            color: gray;
-            font-weight: normal;
-            font-size: 0.75em;
-            padding-bottom: -0.75em;
-        }
-
-        .point-denominator {
-            border-top: 1px solid gray;
-            font-size: 0.7em;
-        }
-
-        .start-time {
-            display: none;
-        }
-
-        .user-name {
-            position: relative;
-        }
-
-        .organization-column {
-            display: none;
-            text-align: left !important;
-            border-right: none !important;
-        }
-
-        .organization-column a {
-            color: gray !important;
-            font-weight: 600;
-        }
-    </style>
-
-    {% if has_rating %}
-        <style>#users-table .rate-box {
-            font-size: 0.85em;
-            float: left;
-        }
-
-        #users-table td:nth-child(1) .rating {
-            margin-left: 1.25em;
-            display: block;
-        }
-
-        #users-table td:nth-child(2) a {
-            display: block;
-        }
-        </style>
-    {% endif %}
-
-    <style>
         .select2-selection__arrow {
             display: none;
         }
@@ -208,6 +81,7 @@
             })).attr('placeholder');
 
             $('#search-contest').select2({
+                theme: '{{ DMOJ_SELECT2_THEME }}',
                 placeholder: placeholder,
                 ajax: {
                     url: '{{ url('contest_user_search_select2_ajax', contest.key) }}'
@@ -256,5 +130,6 @@
 {% endblock %}
 
 {% block users_table %}
+    {% set table_id='ranking-table' %}
     {% include "contest/ranking-table.html" %}
 {% endblock %}

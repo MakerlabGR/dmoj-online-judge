@@ -33,10 +33,6 @@
             height: 70px
         }
 
-        .grayed {
-            color: #666;
-        }
-
         .inline-header {
             float: left;
             font-size: 1.1em;
@@ -189,6 +185,9 @@
 
             <div class="block-header">{{ _('Affiliated organizations') }}</div>
             {{ form.organizations }}
+            {% if form.organizations.errors %}
+                <div class="form-field-error">{{ form.organizations.errors }}</div>
+            {% endif %}
 
             {% if form.newsletter %}
                 <div style="padding-top: 0.5em;">{{ form.newsletter }}

@@ -34,9 +34,9 @@ def checker_args_cleaner(self):
         return ''
     try:
         if not isinstance(json.loads(data), dict):
-            raise ValidationError(_('Checker arguments must be a JSON object'))
+            raise ValidationError(_('Checker arguments must be a JSON object.'))
     except ValueError:
-        raise ValidationError(_('Checker arguments is invalid JSON'))
+        raise ValidationError(_('Checker arguments is invalid JSON.'))
     return data
 
 
@@ -50,7 +50,8 @@ class ProblemDataForm(ModelForm):
 
     class Meta:
         model = ProblemData
-        fields = ['zipfile', 'generator', 'output_limit', 'output_prefix', 'checker', 'checker_args']
+        fields = ['zipfile', 'generator', 'unicode', 'nobigmath', 'output_limit', 'output_prefix',
+                  'checker', 'checker_args']
         widgets = {
             'checker_args': HiddenInput,
         }

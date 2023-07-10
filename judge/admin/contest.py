@@ -1,5 +1,4 @@
 from adminsortable2.admin import SortableInlineAdminMixin
-from django.conf.urls import url
 from django.contrib import admin
 from django.core.exceptions import PermissionDenied
 from django.db import connection, transaction
@@ -7,7 +6,7 @@ from django.db.models import Q, TextField
 from django.forms import ModelForm, ModelMultipleChoiceField
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
-from django.urls import reverse, reverse_lazy
+from django.urls import path, reverse, reverse_lazy
 from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _, ngettext
@@ -73,8 +72,8 @@ class ContestProblemInline(SortableInlineAdminMixin, admin.TabularInline):
     def rejudge_column(self, obj):
         if obj.id is None:
             return ''
-        return format_html('<a class="button rejudge-link" href="{}">Rejudge</a>',
-                           reverse('admin:judge_contest_rejudge', args=(obj.contest.id, obj.id)))
+        return format_html('<a class="button rejudge-link" href="{0}">{1}</a>',
+                           reverse('admin:judge_contest_rejudge', args=(obj.contest.id, obj.id)), _('Rejudge'))
     rejudge_column.short_description = ''
 
 
@@ -184,8 +183,8 @@ class ContestAdmin(NoBatchDeleteMixin, VersionAdmin):
         if form.changed_data:
             if 'private_contestants' in form.changed_data:
                 obj.is_private = bool(form.cleaned_data['private_contestants'])
-            if 'organizations' in form.changed_data:
-                obj.is_organization_private = bool(form.cleaned_data['organizations'])
+            if 'organizations' in form.changed_data or 'classes' in form.changed_data:
+                obj.is_organization_private = bool(form.cleaned_data['organizations'] or form.cleaned_data['classes'])
             if 'join_organizations' in form.cleaned_data:
                 obj.limit_join_organizations = bool(form.cleaned_data['join_organizations'])
 
@@ -268,9 +267,9 @@ class ContestAdmin(NoBatchDeleteMixin, VersionAdmin):
 
     def get_urls(self):
         return [
-            url(r'^rate/all/$', self.rate_all_view, name='judge_contest_rate_all'),
-            url(r'^(\d+)/rate/$', self.rate_view, name='judge_contest_rate'),
-            url(r'^(\d+)/judge/(\d+)/$', self.rejudge_view, name='judge_contest_rejudge'),
+            path('rate/all/', self.rate_all_view, name='judge_contest_rate_all'),
+            path('<int:id>/rate/', self.rate_view, name='judge_contest_rate'),
+            path('<int:contest_id>/judge/<int:problem_id>/', self.rejudge_view, name='judge_contest_rejudge'),
         ] + super(ContestAdmin, self).get_urls()
 
     def rejudge_view(self, request, contest_id, problem_id):
@@ -309,7 +308,9 @@ class ContestAdmin(NoBatchDeleteMixin, VersionAdmin):
         if 'problem_label_script' in form.base_fields:
             # form.base_fields['problem_label_script'] does not exist when the user has only view permission
             # on the model.
-            form.base_fields['problem_label_script'].widget = AceWidget('lua', request.profile.ace_theme)
+            form.base_fields['problem_label_script'].widget = AceWidget(
+                mode='lua', theme=request.profile.resolved_ace_theme,
+            )
 
         perms = ('edit_own_contest', 'edit_all_contest')
         form.base_fields['curators'].queryset = Profile.objects.filter(

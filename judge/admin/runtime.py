@@ -1,47 +1,35 @@
-from django.conf.urls import url
 from django.db.models import TextField
-from django.forms import ModelForm, ModelMultipleChoiceField, TextInput
+from django.forms import ModelForm, TextInput
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
-from django.urls import reverse
+from django.urls import path, reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from reversion.admin import VersionAdmin
 
 from django_ace import AceWidget
-from judge.models import Judge, Problem
-from judge.widgets import AdminHeavySelect2MultipleWidget, AdminMartorWidget
+from judge.models import Judge
+from judge.widgets import AdminMartorWidget
 
 
 class LanguageForm(ModelForm):
-    problems = ModelMultipleChoiceField(
-        label=_('Disallowed problems'),
-        queryset=Problem.objects.all(),
-        required=False,
-        help_text=_('These problems are NOT allowed to be submitted in this language'),
-        widget=AdminHeavySelect2MultipleWidget(data_view='problem_select2'))
-
     class Meta:
         widgets = {'description': AdminMartorWidget}
 
 
 class LanguageAdmin(VersionAdmin):
     fields = ('key', 'name', 'short_name', 'common_name', 'ace', 'pygments', 'info', 'extension', 'description',
-              'template', 'problems')
+              'template')
     list_display = ('key', 'name', 'common_name', 'info')
     form = LanguageForm
 
-    def save_model(self, request, obj, form, change):
-        super(LanguageAdmin, self).save_model(request, obj, form, change)
-        obj.problem_set.set(Problem.objects.exclude(id__in=form.cleaned_data['problems'].values('id')))
-
     def get_form(self, request, obj=None, **kwargs):
-        self.form.base_fields['problems'].initial = \
-            Problem.objects.exclude(id__in=obj.problem_set.values('id')).values_list('pk', flat=True) if obj else []
         form = super(LanguageAdmin, self).get_form(request, obj, **kwargs)
         if obj is not None:
-            form.base_fields['template'].widget = AceWidget(obj.ace, request.profile.ace_theme)
+            form.base_fields['template'].widget = AceWidget(
+                mode=obj.ace, theme=request.profile.resolved_ace_theme,
+            )
         return form
 
 
@@ -50,7 +38,7 @@ class GenerateKeyTextInput(TextInput):
         text = super(TextInput, self).render(name, value, attrs)
         return mark_safe(text + format_html(
             """\
-<a href="#" onclick="return false;" class="button" id="id_{0}_regen">Regenerate</a>
+<a href="#" onclick="return false;" class="button" id="id_{0}_regen">{1}</a>
 <script type="text/javascript">
 django.jQuery(document).ready(function ($) {{
     $('#id_{0}_regen').click(function () {{
@@ -61,7 +49,7 @@ django.jQuery(document).ready(function ($) {{
     }});
 }});
 </script>
-""", name))
+""", name, _('Regenerate')))
 
 
 class JudgeAdminForm(ModelForm):
@@ -71,22 +59,24 @@ class JudgeAdminForm(ModelForm):
 
 class JudgeAdmin(VersionAdmin):
     form = JudgeAdminForm
-    readonly_fields = ('created', 'online', 'start_time', 'ping', 'load', 'last_ip', 'runtimes', 'problems')
+    readonly_fields = ('created', 'online', 'start_time', 'ping', 'load', 'last_ip', 'runtimes', 'problems',
+                       'is_disabled')
     fieldsets = (
-        (None, {'fields': ('name', 'auth_key', 'is_blocked')}),
+        (None, {'fields': ('name', 'auth_key', 'is_blocked', 'is_disabled')}),
         (_('Description'), {'fields': ('description',)}),
         (_('Information'), {'fields': ('created', 'online', 'last_ip', 'start_time', 'ping', 'load')}),
-        (_('Capabilities'), {'fields': ('runtimes', 'problems')}),
+        (_('Capabilities'), {'fields': ('runtimes',)}),
     )
-    list_display = ('name', 'online', 'start_time', 'ping', 'load', 'last_ip')
+    list_display = ('name', 'online', 'is_disabled', 'start_time', 'ping', 'load', 'last_ip')
     ordering = ['-online', 'name']
     formfield_overrides = {
         TextField: {'widget': AdminMartorWidget},
     }
 
     def get_urls(self):
-        return ([url(r'^(\d+)/disconnect/$', self.disconnect_view, name='judge_judge_disconnect'),
-                 url(r'^(\d+)/terminate/$', self.terminate_view, name='judge_judge_terminate')] +
+        return ([path('<int:id>/disconnect/', self.disconnect_view, name='judge_judge_disconnect'),
+                 path('<int:id>/terminate/', self.terminate_view, name='judge_judge_terminate'),
+                 path('<int:id>/disable/', self.disable_view, name='judge_judge_disable')] +
                 super(JudgeAdmin, self).get_urls())
 
     def disconnect_judge(self, id, force=False):
@@ -99,6 +89,11 @@ class JudgeAdmin(VersionAdmin):
 
     def terminate_view(self, request, id):
         return self.disconnect_judge(id, force=True)
+
+    def disable_view(self, request, id):
+        judge = get_object_or_404(Judge, id=id)
+        judge.toggle_disabled()
+        return HttpResponseRedirect(reverse('admin:judge_judge_change', args=(judge.id,)))
 
     def get_readonly_fields(self, request, obj=None):
         if obj is not None and obj.online:

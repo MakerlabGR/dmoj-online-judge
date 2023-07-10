@@ -1,15 +1,3 @@
-// IE 8
-if (!Array.prototype.indexOf) {
-    Array.prototype.indexOf = function (obj) {
-        for (var i = 0; i < this.length; i++) {
-            if (this[i] == obj) {
-                return i;
-            }
-        }
-        return -1;
-    }
-}
-
 if (!String.prototype.startsWith) {
     String.prototype.startsWith = function (searchString, position) {
         return this.substr(position || 0, searchString.length) === searchString;
@@ -132,12 +120,11 @@ $(function () {
     var $nav_list = $('#nav-list');
     $('#navicon').click(function (event) {
         event.stopPropagation();
-        $nav_list.toggle();
+        $nav_list.toggleClass('show-list');
         if ($nav_list.is(':hidden'))
             $(this).blur().removeClass('hover');
         else {
             $(this).addClass('hover');
-            $nav_list.find('li ul').css('left', $('#nav-list').width()).hide();
         }
     }).hover(function () {
         $(this).addClass('hover');
@@ -147,7 +134,7 @@ $(function () {
 
     $nav_list.find('li a .nav-expand').click(function (event) {
         event.preventDefault();
-        $(this).parent().siblings('ul').css('display', 'block');
+        $(this).parent().siblings('ul').toggleClass('show-list');
     });
 
     $nav_list.find('li a').each(function () {
@@ -165,7 +152,7 @@ $(function () {
     });
 
     $('html').click(function () {
-        $nav_list.hide();
+        $nav_list.removeClass('show-list');
     });
 
     $.ajaxSetup({
@@ -212,12 +199,32 @@ function count_down(label) {
     }, 1000);
 }
 
-function register_time(elems, limit) {
-    limit = limit || 300;
+function set_date_locale(language_code) {
+    if (typeof Intl !== 'undefined' && !!Intl.RelativeTimeFormat && !!Math.trunc) {
+        var rtf = new Intl.RelativeTimeFormat(language_code);
+        window.format_ms = function (amount) {
+            amount = Math.trunc(amount / 1000); // seconds
+            if (Math.abs(amount) < 120) return rtf.format(amount, 'second');
+            amount = Math.trunc(amount / 60);   // minutes
+            if (Math.abs(amount) < 180) return rtf.format(amount, 'minute');
+            amount = Math.trunc(amount / 60);   // hours
+            if (Math.abs(amount) < 48) return rtf.format(amount, 'hour');
+            amount = Math.trunc(amount / 24);   // days
+            if (Math.abs(amount) < 100) return rtf.format(amount, 'day');
+            return '';          // beyond 100 days, use absolute time
+        };
+    } else {
+        window.format_ms = function () {
+            return '';
+        };
+    }
+}
+
+function register_time(elems) {
     elems.each(function () {
         var outdated = false;
         var $this = $(this);
-        var time = moment($this.attr('data-iso'));
+        var time = Date.parse($this.attr('data-iso'));
         var rel_format = $this.attr('data-format');
         var abs = $this.text();
 
@@ -225,11 +232,12 @@ function register_time(elems, limit) {
             if ($('body').hasClass('window-hidden'))
                 return outdated = true;
             outdated = false;
-            if (moment().diff(time, 'days') > limit) {
+            var msg = window.format_ms(time - Date.now());
+            if (!msg) {
                 $this.text(abs);
                 return;
             }
-            $this.text(rel_format.replace('{time}', time.fromNow()));
+            $this.text(rel_format.replace('{time}', msg));
             setTimeout(update, 10000);
         }
 
@@ -328,28 +336,5 @@ $(function () {
     $("a.close").click(function () {
         var $closer = $(this);
         $closer.parent().fadeOut(200);
-    });
-});
-
-$.fn.textWidth = function () {
-    var html_org = $(this).html();
-    var html_calc = '<span style="white-space: nowrap;">' + html_org + '</span>';
-    $(this).html(html_calc);
-    var width = $(this).find('span:first').width();
-    $(this).html(html_org);
-    return width;
-};
-
-$(function () {
-    $('.tabs').each(function () {
-        var $this = $(this), $h2 = $(this).find('h2'), $ul = $(this).find('ul');
-        var cutoff = ($h2.textWidth() || 400) + 20, handler;
-        $ul.children().each(function () {
-            cutoff += $(this).width();
-        });
-        $(window).resize(handler = function () {
-            $this.toggleClass('tabs-no-flex', $this.width() < cutoff);
-        });
-        handler();
     });
 });

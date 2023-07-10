@@ -10,6 +10,7 @@ from django.core.exceptions import PermissionDenied
 from django.db.models import Count, IntegerField, OuterRef, Q, Subquery, Value
 from django.forms import Form, modelformset_factory
 from django.http import Http404, HttpResponsePermanentRedirect, HttpResponseRedirect
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.html import escape, format_html
 from django.utils.safestring import mark_safe
@@ -21,7 +22,7 @@ from reversion import revisions
 from judge.forms import EditOrganizationForm
 from judge.models import Class, Organization, OrganizationRequest, Profile
 from judge.utils.ranker import ranker
-from judge.utils.views import TitleMixin, generic_message
+from judge.utils.views import DiggPaginatorMixin, QueryStringSortMixin, TitleMixin, generic_message
 
 __all__ = ['OrganizationList', 'OrganizationHome', 'OrganizationUsers', 'OrganizationMembershipChange',
            'JoinOrganization', 'LeaveOrganization', 'EditOrganization', 'RequestJoinOrganization',
@@ -29,8 +30,8 @@ __all__ = ['OrganizationList', 'OrganizationHome', 'OrganizationUsers', 'Organiz
            'KickUserWidgetView', 'ClassHome', 'RequestJoinClass']
 
 
-def users_for_template(users):
-    return ranker(users.filter(is_unlisted=False).order_by('-performance_points', '-problem_count')
+def users_for_template(users, order):
+    return ranker(users.filter(is_unlisted=False).order_by(order)
                   .select_related('user').defer('about', 'user_script', 'notes'))
 
 
@@ -62,6 +63,22 @@ class OrganizationMixin(object):
             return False
         profile_id = self.request.profile.id
         return org.admins.filter(id=profile_id).exists()
+
+
+class BaseOrganizationListView(OrganizationMixin, ListView):
+    model = None
+    context_object_name = None
+    slug_url_kwarg = 'slug'
+
+    def get_object(self):
+        return get_object_or_404(Organization, id=self.kwargs.get('pk'))
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(organization=self.object, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return super().get(request, *args, **kwargs)
 
 
 class OrganizationDetailView(OrganizationMixin, DetailView):
@@ -107,16 +124,28 @@ class OrganizationHome(OrganizationDetailView):
         return context
 
 
-class OrganizationUsers(OrganizationDetailView):
+class OrganizationUsers(QueryStringSortMixin, DiggPaginatorMixin, BaseOrganizationListView):
     template_name = 'organization/users.html'
+    all_sorts = frozenset(('problem_count', 'rating', 'performance_points'))
+    default_desc = all_sorts
+    default_sort = '-performance_points'
+    paginate_by = 100
+    context_object_name = 'users'
+
+    def get_queryset(self):
+        return self.object.members.filter(is_unlisted=False).order_by(self.order).select_related('user') \
+            .defer('about', 'user_script', 'notes')
 
     def get_context_data(self, **kwargs):
         context = super(OrganizationUsers, self).get_context_data(**kwargs)
         context['title'] = _('%s Members') % self.object.name
-        context['users'] = users_for_template(self.object.members)
+        context['users'] = ranker(context['users'])
         context['partial'] = True
         context['is_admin'] = self.can_edit_organization()
         context['kick_url'] = reverse('organization_user_kick', args=[self.object.id, self.object.slug])
+        context['first_page_href'] = '.'
+        context.update(self.get_sort_context())
+        context.update(self.get_sort_paginate_context())
         return context
 
 
@@ -144,7 +173,9 @@ class JoinOrganization(OrganizationMembershipChange):
         if profile.organizations.filter(is_open=True).count() >= max_orgs:
             return generic_message(
                 request, _('Joining organization'),
-                _('You may not be part of more than {count} public organizations.').format(count=max_orgs),
+                ngettext('You may not be part of more than {count} public organization.',
+                         'You may not be part of more than {count} public organizations.',
+                         max_orgs).format(count=max_orgs),
             )
 
         profile.organizations.add(org)
@@ -247,7 +278,9 @@ class OrganizationRequestBaseView(LoginRequiredMixin, SingleObjectTemplateRespon
         return organization
 
     def get_requests(self):
-        queryset = self.object.requests.all()
+        queryset = self.object.requests.select_related('user__user').defer(
+            'user__about', 'user__notes', 'user__user_script',
+        )
         if not self.edit_all:
             queryset = queryset.filter(request_class__in=self.object.classes.filter(admins__id=self.request.profile.id))
         return queryset
@@ -286,8 +319,11 @@ class OrganizationRequestView(OrganizationRequestBaseView):
                 to_approve = sum(form.cleaned_data['state'] == 'A' for form in formset.forms if form not in deleted_set)
                 can_add = organization.slots - organization.members.count()
                 if to_approve > can_add:
-                    messages.error(request, _('Your organization can only receive %d more members. '
-                                              'You cannot approve %d users.') % (can_add, to_approve))
+                    msg1 = ngettext('Your organization can only receive %d more member.',
+                                    'Your organization can only receive %d more members.', can_add) % can_add
+                    msg2 = ngettext('You cannot approve %d user.',
+                                    'You cannot approve %d users.', to_approve) % to_approve
+                    messages.error(request, msg1 + '\n' + msg2)
                     return self.render_to_response(self.get_context_data(object=organization))
 
             approved, rejected = 0, 0
@@ -395,14 +431,18 @@ class ClassMixin(TitleMixin, SingleObjectTemplateResponseMixin, SingleObjectMixi
         return self.render_to_response(context)
 
 
-class ClassHome(ClassMixin, DetailView):
+class ClassHome(QueryStringSortMixin, ClassMixin, DetailView):
     template_name = 'organization/class.html'
+    all_sorts = frozenset(('problem_count', 'rating', 'performance_points'))
+    default_desc = all_sorts
+    default_sort = '-performance_points'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['logo_override_image'] = self.object.organization.logo_override_image
-        context['users'] = users_for_template(self.object.members)
+        context['users'] = users_for_template(self.object.members, self.order)
         context['is_admin'] = False  # Don't allow kicking here
+        context.update(self.get_sort_context())
         return context
 
     def get_content_title(self):

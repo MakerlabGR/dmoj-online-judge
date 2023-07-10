@@ -11,8 +11,7 @@ from django.views.generic import RedirectView
 from martor.views import markdown_search_user
 
 from judge.feed import AtomBlogFeed, AtomCommentFeed, AtomProblemFeed, BlogFeed, CommentFeed, ProblemFeed
-from judge.sitemap import BlogPostSitemap, ContestSitemap, HomePageSitemap, OrganizationSitemap, ProblemSitemap, \
-    SolutionSitemap, UrlSitemap, UserSitemap
+from judge.sitemap import sitemaps
 from judge.views import TitledTemplateView, api, blog, comment, contests, language, license, mailgun, organization, \
     preview, problem, problem_manage, ranked_submission, register, stats, status, submission, tasks, ticket, \
     two_factor, user, widgets
@@ -122,6 +121,10 @@ urlpatterns = [
 
         path('/tickets', ticket.ProblemTicketListView.as_view(), name='problem_ticket_list'),
         path('/tickets/new', ticket.NewProblemTicketView.as_view(), name='new_problem_ticket'),
+
+        path('/vote', problem.ProblemVote.as_view(), name='problem_vote'),
+        path('/vote/delete', problem.DeleteProblemVote.as_view(), name='delete_problem_vote'),
+        path('/vote/stats', problem.ProblemVoteStats.as_view(), name='problem_vote_stats'),
 
         path('/manage/submission', include([
             path('', problem_manage.ManageProblemSubmissionView.as_view(), name='problem_manage_submissions'),
@@ -252,29 +255,19 @@ urlpatterns = [
     path('runtimes/matrix/', status.version_matrix, name='version_matrix'),
     path('status/', status.status_all, name='status_all'),
 
-    path('api/', include([
-        path('contest/list', api.api_v1_contest_list),
-        path('contest/info/<str:contest>', api.api_v1_contest_detail),
-        path('problem/list', api.api_v1_problem_list),
-        path('problem/info/<str:problem>', api.api_v1_problem_info),
-        path('user/list', api.api_v1_user_list),
-        path('user/info/<str:user>', api.api_v1_user_info),
-        path('user/submissions/<str:user>', api.api_v1_user_submissions),
-        path('user/ratings/<int:page>', api.api_v1_user_ratings),
-        path('v2/', include([
-            path('contests', api.api_v2.APIContestList.as_view()),
-            path('contest/<str:contest>', api.api_v2.APIContestDetail.as_view()),
-            path('problems', api.api_v2.APIProblemList.as_view()),
-            path('problem/<str:problem>', api.api_v2.APIProblemDetail.as_view()),
-            path('users', api.api_v2.APIUserList.as_view()),
-            path('user/<str:user>', api.api_v2.APIUserDetail.as_view()),
-            path('submissions', api.api_v2.APISubmissionList.as_view()),
-            path('submission/<int:submission>', api.api_v2.APISubmissionDetail.as_view()),
-            path('organizations', api.api_v2.APIOrganizationList.as_view()),
-            path('participations', api.api_v2.APIContestParticipationList.as_view()),
-            path('languages', api.api_v2.APILanguageList.as_view()),
-            path('judges', api.api_v2.APIJudgeList.as_view()),
-        ])),
+    path('api/v2/', include([
+        path('contests', api.api_v2.APIContestList.as_view()),
+        path('contest/<str:contest>', api.api_v2.APIContestDetail.as_view()),
+        path('problems', api.api_v2.APIProblemList.as_view()),
+        path('problem/<str:problem>', api.api_v2.APIProblemDetail.as_view()),
+        path('users', api.api_v2.APIUserList.as_view()),
+        path('user/<str:user>', api.api_v2.APIUserDetail.as_view()),
+        path('submissions', api.api_v2.APISubmissionList.as_view()),
+        path('submission/<int:submission>', api.api_v2.APISubmissionDetail.as_view()),
+        path('organizations', api.api_v2.APIOrganizationList.as_view()),
+        path('participations', api.api_v2.APIContestParticipationList.as_view()),
+        path('languages', api.api_v2.APILanguageList.as_view()),
+        path('judges', api.api_v2.APIJudgeList.as_view()),
     ])),
 
     path('blog/', paged_list_view(blog.PostList, 'blog_post_list')),
@@ -352,18 +345,7 @@ urlpatterns = [
         path('/notes', ticket.TicketNotesEditView.as_view(), name='ticket_notes'),
     ])),
 
-    path('sitemap.xml', sitemap, {'sitemaps': {
-        'problem': ProblemSitemap,
-        'user': UserSitemap,
-        'home': HomePageSitemap,
-        'contest': ContestSitemap,
-        'organization': OrganizationSitemap,
-        'blog': BlogPostSitemap,
-        'solutions': SolutionSitemap,
-        'pages': UrlSitemap([
-            {'location': '/about/', 'priority': 0.9},
-        ]),
-    }}),
+    path('sitemap.xml', sitemap, {'sitemaps': sitemaps}),
 
     path('judge-select2/', include([
         path('profile/', UserSelect2View.as_view(), name='profile_select2'),

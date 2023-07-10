@@ -49,14 +49,14 @@ class WebAuthnInline(admin.TabularInline):
     readonly_fields = ('cred_id', 'public_key', 'counter')
     extra = 0
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return False
 
 
 class ProfileAdmin(NoBatchDeleteMixin, VersionAdmin):
     fields = ('user', 'display_rank', 'about', 'organizations', 'timezone', 'language', 'ace_theme',
-              'math_engine', 'last_access', 'ip', 'mute', 'is_unlisted', 'username_display_override',
-              'notes', 'is_totp_enabled', 'user_script', 'current_contest')
+              'math_engine', 'last_access', 'ip', 'mute', 'is_unlisted', 'is_banned_from_problem_voting',
+              'username_display_override', 'notes', 'is_totp_enabled', 'user_script', 'current_contest')
     readonly_fields = ('user',)
     list_display = ('admin_user_admin', 'email', 'is_totp_enabled', 'timezone_full',
                     'date_joined', 'last_access', 'ip', 'show_public')
@@ -126,5 +126,7 @@ class ProfileAdmin(NoBatchDeleteMixin, VersionAdmin):
         form = super(ProfileAdmin, self).get_form(request, obj, **kwargs)
         if 'user_script' in form.base_fields:
             # form.base_fields['user_script'] does not exist when the user has only view permission on the model.
-            form.base_fields['user_script'].widget = AceWidget('javascript', request.profile.ace_theme)
+            form.base_fields['user_script'].widget = AceWidget(
+                mode='javascript', theme=request.profile.resolved_ace_theme,
+            )
         return form

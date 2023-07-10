@@ -1,11 +1,11 @@
 import errno
 import os
+from typing import Optional
 
 from django.conf import settings
-from django.contrib.sites.models import Site
 from django.core.cache import cache
 from django.core.cache.utils import make_template_fragment_key
-from django.db.models.signals import post_delete, post_save, pre_save
+from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 
 from .caching import finished_submission
@@ -13,7 +13,10 @@ from .models import BlogPost, Comment, Contest, ContestSubmission, EFFECTIVE_MAT
     MiscConfig, Organization, Problem, Profile, Submission, WebAuthnCredential
 
 
-def get_pdf_path(basename):
+def get_pdf_path(basename: str) -> Optional[str]:
+    if not settings.DMOJ_PDF_PROBLEM_CACHE:
+        return None
+
     return os.path.join(settings.DMOJ_PDF_PROBLEM_CACHE, basename)
 
 
@@ -42,7 +45,9 @@ def problem_update(sender, instance, **kwargs):
     cache.delete_many(['generated-meta-problem:%s:%d' % (lang, instance.id) for lang, _ in settings.LANGUAGES])
 
     for lang, _ in settings.LANGUAGES:
-        unlink_if_exists(get_pdf_path('%s.%s.pdf' % (instance.code, lang)))
+        cached_pdf_filename = get_pdf_path('%s.%s.pdf' % (instance.code, lang))
+        if cached_pdf_filename is not None:
+            unlink_if_exists(cached_pdf_filename)
 
 
 @receiver(post_save, sender=Profile)
@@ -128,35 +133,14 @@ def organization_update(sender, instance, **kwargs):
                        for engine in EFFECTIVE_MATH_ENGINES])
 
 
-_misc_config_i18n = [code for code, _ in settings.LANGUAGES]
-_misc_config_i18n.append('')
-
-
-def misc_config_cache_delete(key):
-    cache.delete_many(['misc_config:%s:%s:%s' % (domain, lang, key.split('.')[0])
-                       for lang in _misc_config_i18n
-                       for domain in Site.objects.values_list('domain', flat=True)])
-
-
-@receiver(pre_save, sender=MiscConfig)
-def misc_config_pre_save(sender, instance, **kwargs):
-    try:
-        old_key = MiscConfig.objects.filter(id=instance.id).values_list('key').get()[0]
-    except MiscConfig.DoesNotExist:
-        old_key = None
-    instance._old_key = old_key
-
-
 @receiver(post_save, sender=MiscConfig)
 def misc_config_update(sender, instance, **kwargs):
-    misc_config_cache_delete(instance.key)
-    if instance._old_key is not None and instance._old_key != instance.key:
-        misc_config_cache_delete(instance._old_key)
+    cache.delete('misc_config')
 
 
 @receiver(post_delete, sender=MiscConfig)
 def misc_config_delete(sender, instance, **kwargs):
-    misc_config_cache_delete(instance.key)
+    cache.delete('misc_config')
 
 
 @receiver(post_save, sender=ContestSubmission)

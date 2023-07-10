@@ -11,10 +11,12 @@ from django.core.validators import RegexValidator
 from django.db.models import Q
 from django.forms import BooleanField, CharField, ChoiceField, Form, ModelForm, MultipleChoiceField
 from django.urls import reverse_lazy
-from django.utils.translation import gettext_lazy as _
+from django.utils.text import format_lazy
+from django.utils.translation import gettext_lazy as _, ngettext_lazy
 
 from django_ace import AceWidget
-from judge.models import Contest, Language, Organization, Problem, Profile, Submission, WebAuthnCredential
+from judge.models import Contest, Language, Organization, Problem, ProblemPointsVote, Profile, Submission, \
+    WebAuthnCredential
 from judge.utils.subscription import newsletter_id
 from judge.widgets import HeavyPreviewPageDownWidget, Select2MultipleWidget, Select2Widget
 
@@ -24,13 +26,15 @@ two_factor_validators_by_length = {
     TOTP_CODE_LENGTH: {
         'regex_validator': RegexValidator(
             f'^[0-9]{{{TOTP_CODE_LENGTH}}}$',
-            _(f'Two-factor authentication tokens must be {TOTP_CODE_LENGTH} decimal digits.'),
+            format_lazy(ngettext_lazy('Two-factor authentication tokens must be {count} decimal digit.',
+                                      'Two-factor authentication tokens must be {count} decimal digits.',
+                                      TOTP_CODE_LENGTH), count=TOTP_CODE_LENGTH),
         ),
         'verify': lambda code, profile: not profile.check_totp_code(code),
         'err': _('Invalid two-factor authentication token.'),
     },
     16: {
-        'regex_validator': RegexValidator('^[A-Z0-9]{16}$', _('Scratch codes must be 16 base32 characters.')),
+        'regex_validator': RegexValidator('^[A-Z0-9]{16}$', _('Scratch codes must be 16 Base32 characters.')),
         'verify': lambda code, profile: code not in json.loads(profile.scratch_codes),
         'err': _('Invalid scratch code.'),
     },
@@ -44,12 +48,12 @@ class ProfileForm(ModelForm):
 
     class Meta:
         model = Profile
-        fields = ['about', 'organizations', 'timezone', 'language', 'ace_theme', 'user_script']
+        fields = ['about', 'organizations', 'timezone', 'language', 'ace_theme', 'site_theme', 'user_script']
         widgets = {
-            'user_script': AceWidget(theme='github'),
             'timezone': Select2Widget(attrs={'style': 'width:200px'}),
             'language': Select2Widget(attrs={'style': 'width:200px'}),
             'ace_theme': Select2Widget(attrs={'style': 'width:200px'}),
+            'site_theme': Select2Widget(attrs={'style': 'width:200px'}),
         }
 
         has_math_config = bool(settings.MATHOID_URL)
@@ -73,8 +77,9 @@ class ProfileForm(ModelForm):
         max_orgs = settings.DMOJ_USER_MAX_ORGANIZATION_COUNT
 
         if sum(org.is_open for org in organizations) > max_orgs:
-            raise ValidationError(
-                _('You may not be part of more than {count} public organizations.').format(count=max_orgs))
+            raise ValidationError(ngettext_lazy('You may not be part of more than {count} public organization.',
+                                                'You may not be part of more than {count} public organizations.',
+                                                max_orgs).format(count=max_orgs))
 
         return self.cleaned_data
 
@@ -87,6 +92,7 @@ class ProfileForm(ModelForm):
             )
         if not self.fields['organizations'].queryset:
             self.fields.pop('organizations')
+        self.fields['user_script'].widget = AceWidget(mode='javascript', theme=user.profile.resolved_ace_theme)
 
 
 class DownloadDataForm(Form):
@@ -174,7 +180,7 @@ class NoAutoCompleteCharField(forms.CharField):
 class TOTPForm(Form):
     TOLERANCE = settings.DMOJ_TOTP_TOLERANCE_HALF_MINUTES
 
-    totp_or_scratch_code = NoAutoCompleteCharField(required=False)
+    totp_or_scratch_code = NoAutoCompleteCharField(required=False, widget=forms.TextInput(attrs={'autofocus': True}))
 
     def __init__(self, *args, **kwargs):
         self.profile = kwargs.pop('profile')
@@ -280,3 +286,11 @@ class ContestCloneForm(Form):
         if Contest.objects.filter(key=key).exists():
             raise ValidationError(_('Contest with key already exists.'))
         return key
+
+
+class ProblemPointsVoteForm(ModelForm):
+    note = CharField(max_length=8192, required=False)
+
+    class Meta:
+        model = ProblemPointsVote
+        fields = ['points', 'note']

@@ -28,11 +28,12 @@ from django.views.generic import DetailView, FormView, ListView, TemplateView, V
 from reversion import revisions
 
 from judge.forms import CustomAuthenticationForm, DownloadDataForm, ProfileForm, newsletter_id
-from judge.models import Profile, Rating, Submission
+from judge.models import Profile, Submission
 from judge.performance_points import get_pp_breakdown
 from judge.ratings import rating_class, rating_progress
 from judge.tasks import prepare_user_data
 from judge.utils.celery import task_status_by_id, task_status_url_by_id
+from judge.utils.infinite_paginator import InfinitePaginationMixin
 from judge.utils.problems import contest_completed_ids, user_completed_ids
 from judge.utils.pwned import PwnedPasswordsValidator
 from judge.utils.ranker import ranker
@@ -103,7 +104,7 @@ class UserPage(TitleMixin, UserMixin, DetailView):
 
         context['hide_solved'] = int(self.hide_solved)
         context['authored'] = self.object.authored_problems.filter(is_public=True, is_organization_private=False) \
-                                  .order_by('code')
+                                  .select_related('group').order_by('code')
         rating = self.object.ratings.order_by('-contest__end_time')[:1]
         context['rating'] = rating[0] if rating else None
 
@@ -171,16 +172,6 @@ class UserAboutPage(UserPage):
             'class': rating_class(rating.rating),
             'height': '%.3fem' % rating_progress(rating.rating),
         } for rating in ratings]))
-
-        if ratings:
-            user_data = self.object.ratings.aggregate(Min('rating'), Max('rating'))
-            global_data = Rating.objects.aggregate(Min('rating'), Max('rating'))
-            min_ever, max_ever = global_data['rating__min'], global_data['rating__max']
-            min_user, max_user = user_data['rating__min'], user_data['rating__max']
-            delta = max_user - min_user
-            ratio = (max_ever - max_user) / (max_ever - min_ever) if max_ever != min_ever else 1.0
-            context['max_graph'] = max_user + ratio * delta
-            context['min_graph'] = min_user + ratio * delta - delta
 
         submissions = (
             self.object.submission_set
@@ -354,7 +345,7 @@ class UserDownloadData(LoginRequiredMixin, UserDataMixin, View):
 @login_required
 def edit_profile(request):
     if request.profile.mute:
-        raise Http404()
+        return generic_message(request, _("Can't edit profile"), _('Your part is silent, little toad.'), status=403)
     if request.method == 'POST':
         form = ProfileForm(request.POST, instance=request.profile, user=request.user)
         if form.is_valid():
@@ -391,15 +382,13 @@ def edit_profile(request):
                 form.fields['newsletter'].initial = subscription.subscribed
         form.fields['test_site'].initial = request.user.has_perm('judge.test_site')
 
-    tzmap = settings.TIMEZONE_MAP
     return render(request, 'user/edit-profile.html', {
         'require_staff_2fa': settings.DMOJ_REQUIRE_STAFF_2FA,
         'form': form, 'title': _('Edit profile'), 'profile': request.profile,
         'can_download_data': bool(settings.DMOJ_USER_DATA_DOWNLOAD),
         'has_math_config': bool(settings.MATHOID_URL),
         'ignore_user_script': True,
-        'TIMEZONE_MAP': tzmap or 'http://momentjs.com/static/img/world.png',
-        'TIMEZONE_BG': settings.TIMEZONE_BG if tzmap else '#4E7CAD',
+        'TIMEZONE_MAP': settings.TIMEZONE_MAP,
     })
 
 
@@ -435,7 +424,7 @@ def generate_scratch_codes(request):
     return JsonResponse({'data': {'codes': profile.generate_scratch_codes()}})
 
 
-class UserList(QueryStringSortMixin, DiggPaginatorMixin, TitleMixin, ListView):
+class UserList(QueryStringSortMixin, InfinitePaginationMixin, DiggPaginatorMixin, TitleMixin, ListView):
     model = Profile
     title = gettext_lazy('Leaderboard')
     context_object_name = 'users'
@@ -446,9 +435,9 @@ class UserList(QueryStringSortMixin, DiggPaginatorMixin, TitleMixin, ListView):
     default_sort = '-performance_points'
 
     def get_queryset(self):
-        return (Profile.objects.filter(is_unlisted=False).order_by(self.order).select_related('user')
-                .only('display_rank', 'user__username', 'points', 'rating', 'performance_points',
-                      'problem_count'))
+        return (Profile.objects.filter(is_unlisted=False).order_by(self.order, 'id').select_related('user')
+                .only('display_rank', 'user__username', 'username_display_override', 'points', 'rating',
+                      'performance_points', 'problem_count'))
 
     def get_context_data(self, **kwargs):
         context = super(UserList, self).get_context_data(**kwargs)

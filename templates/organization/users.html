@@ -1,11 +1,6 @@
 {% extends "user/base-users.html" %}
 {% block users_media %}
     <style>
-        #users-table td:nth-child(2), #users-table th:nth-child(2) {
-            border-right: none;
-            text-align: left;
-        }
-
         .kick-form .button {
             margin: -8px 0;
         }
@@ -20,7 +15,7 @@
     </style>
 
     {% if is_admin %}
-        <style>#users-table td:nth-child(3), #users-table th:nth-child(3) {
+        <style>#organization-users-table td:nth-child(3), #organization-users th:nth-child(3) {
             border-right: none;
         }
         </style>
@@ -40,4 +35,7 @@
     </script>
 {% endblock %}
 
-{% block users_table %}{% include "organization/users-table.html" %}{% endblock %}
+{% block users_table %}
+    {% set table_id='organization-users-table' %}
+    {% include "organization/users-table.html" %}
+{% endblock %}

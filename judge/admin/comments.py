@@ -1,3 +1,4 @@
+from django.db.models import F
 from django.forms import ModelForm
 from django.urls import reverse_lazy
 from django.utils.html import format_html
@@ -22,7 +23,7 @@ class CommentAdmin(VersionAdmin):
         (None, {'fields': ('author', 'page', 'parent', 'time', 'score', 'hidden')}),
         (_('Content'), {'fields': ('body',)}),
     )
-    list_display = ['author', 'linked_page', 'time']
+    list_display = ['author', 'linked_page', 'time', 'score', 'hidden']
     search_fields = ['author__user__username', 'page', 'body']
     actions = ['hide_comment', 'unhide_comment']
     list_filter = ['hidden']
@@ -59,6 +60,7 @@ class CommentAdmin(VersionAdmin):
     linked_page.admin_order_field = 'page'
 
     def save_model(self, request, obj, form, change):
-        super(CommentAdmin, self).save_model(request, obj, form, change)
+        obj.revisions = F('revisions') + 1
+        super().save_model(request, obj, form, change)
         if obj.hidden:
             obj.get_descendants().update(hidden=obj.hidden)
