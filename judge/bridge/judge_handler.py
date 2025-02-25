@@ -59,6 +59,7 @@ class JudgeHandler(ZlibPacketHandler):
         self.load = 1e100
         self.name = None
         self.is_disabled = False
+        self.tier = None
         self.batch_id = None
         self.in_batch = False
         self._stop_ping = threading.Event()
@@ -106,6 +107,9 @@ class JudgeHandler(ZlibPacketHandler):
         if judge.is_blocked:
             json_log.warning(self._make_json_log(action='auth', judge=id, info='judge authenticated but is blocked'))
             return False
+
+        # Cache judge tier for use by JudgeList
+        self.tier = judge.tier
 
         return True
 
@@ -476,8 +480,8 @@ class JudgeHandler(ZlibPacketHandler):
         self._free_self(packet)
 
         if Submission.objects.filter(id=packet['submission-id']).update(status='AB', result='AB', points=0):
-            event.post('sub_%s' % Submission.get_id_secret(packet['submission-id']), {'type': 'aborted-submission'})
-            self._post_update_submission(packet['submission-id'], 'terminated', done=True)
+            event.post('sub_%s' % Submission.get_id_secret(packet['submission-id']), {'type': 'aborted'})
+            self._post_update_submission(packet['submission-id'], 'aborted', done=True)
             json_log.info(self._make_json_log(packet, action='aborted', finish=True, result='AB'))
         else:
             logger.warning('Unknown submission: %s', packet['submission-id'])

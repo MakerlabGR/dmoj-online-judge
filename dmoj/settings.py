@@ -2,10 +2,10 @@
 Django settings for dmoj project.
 
 For more information on this file, see
-https://docs.djangoproject.com/en/3.2/topics/settings/
+https://docs.djangoproject.com/en/4.2/topics/settings/
 
 For the full list of settings and their values, see
-https://docs.djangoproject.com/en/3.2/ref/settings/
+https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -19,7 +19,7 @@ from jinja2 import select_autoescape
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 # Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
+# See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '5*9f5q57mqmlz2#f$x1h76&jxy#yortjl1v+l*6hd18$d*yx#0'
@@ -107,8 +107,15 @@ DMOJ_STATS_SUBMISSION_RESULT_COLORS = {
 }
 DMOJ_API_PAGE_SIZE = 1000
 
-DMOJ_PASSWORD_RESET_LIMIT_WINDOW = 3600
+# Number of password resets per window (in minutes)
+DMOJ_PASSWORD_RESET_LIMIT_WINDOW = 60
 DMOJ_PASSWORD_RESET_LIMIT_COUNT = 10
+
+# Number of email change requests per window (in minutes)
+DMOJ_EMAIL_CHANGE_LIMIT_WINDOW = 60
+DMOJ_EMAIL_CHANGE_LIMIT_COUNT = 10
+# Number of minutes before an email change request activation key expires
+DMOJ_EMAIL_CHANGE_EXPIRY_MINUTES = 60
 
 # At the bare minimum, dark and light theme CSS file locations must be declared
 DMOJ_THEME_CSS = {
@@ -121,6 +128,9 @@ DMOJ_THEME_DEFAULT_ACE_THEME = {
     'dark': 'twilight',
 }
 DMOJ_SELECT2_THEME = 'dmoj'
+
+DMOJ_ENABLE_COMMENTS = True
+DMOJ_ENABLE_SOCIAL = True
 
 MARKDOWN_STYLES = {}
 MARKDOWN_DEFAULT_STYLE = {}
@@ -262,7 +272,6 @@ INSTALLED_APPS += (
     'social_django',
     'compressor',
     'django_ace',
-    'pagedown',
     'sortedm2m',
     'statici18n',
     'impersonate',
@@ -391,6 +400,7 @@ LANGUAGES = [
     ('hr', _('Croatian')),
     ('hu', _('Hungarian')),
     ('ja', _('Japanese')),
+    ('kk', _('Kazakh')),
     ('ko', _('Korean')),
     ('pt', _('Brazilian Portuguese')),
     ('ro', _('Romanian')),
@@ -485,9 +495,7 @@ MARKDOWN_STYLES = {
 MARTOR_ENABLE_CONFIGS = {
     'imgur': 'true',
     'mention': 'true',
-    'jquery': 'false',
     'living': 'false',
-    'spellcheck': 'false',
     'hljs': 'false',
 }
 MARTOR_MARKDOWNIFY_URL = '/widgets/preview/default'
@@ -500,7 +508,7 @@ MARTOR_UPLOAD_MEDIA_DIR = 'martor'
 MARTOR_UPLOAD_SAFE_EXTS = {'.jpg', '.png', '.gif'}
 
 # Database
-# https://docs.djangoproject.com/en/3.2/ref/settings/#databases
+# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
     'default': {
@@ -527,7 +535,7 @@ EVENT_DAEMON_AMQP_EXCHANGE = 'dmoj-events'
 EVENT_DAEMON_SUBMISSION_KEY = '6Sdmkx^%pk@GsifDfXcwX*Y7LRF%RGT8vmFpSxFBT$fwS7trc8raWfN#CSfQuKApx&$B#Gh2L7p%W!Ww'
 
 # Internationalization
-# https://docs.djangoproject.com/en/3.2/topics/i18n/
+# https://docs.djangoproject.com/en/4.2/topics/i18n/
 
 # Whatever you do, this better be one of the entries in `LANGUAGES`.
 LANGUAGE_CODE = 'en'
@@ -541,7 +549,7 @@ USE_TZ = True
 SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.2/howto/static-files/
+# https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 DMOJ_RESOURCES = os.path.join(BASE_DIR, 'resources')
 STATICFILES_FINDERS = (
@@ -563,6 +571,8 @@ AUTHENTICATION_BACKENDS = (
     'judge.social_auth.GitHubSecureEmailOAuth2',
     'django.contrib.auth.backends.ModelBackend',
 )
+
+REGISTRATION_OPEN = True
 
 SOCIAL_AUTH_PIPELINE = (
     'social_core.pipeline.social_auth.social_details',
@@ -600,6 +610,9 @@ except IOError:
 
 # Check settings are consistent
 assert DMOJ_PROBLEM_MIN_USER_POINTS_VOTE >= DMOJ_PROBLEM_MIN_PROBLEM_POINTS
+
+# <= 1 minute expiry is unusable UX
+assert DMOJ_EMAIL_CHANGE_EXPIRY_MINUTES > 1
 
 if DMOJ_PDF_PDFOID_URL:
     # If a cache is configured, it must already exist and be a directory

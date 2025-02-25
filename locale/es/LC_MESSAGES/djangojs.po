@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dmoj\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-12-20 23:43+0000\n"
-"PO-Revision-Date: 2023-01-11 00:49\n"
+"POT-Creation-Date: 2023-01-23 05:23+0000\n"
+"PO-Revision-Date: 2024-08-28 00:50\n"
 "Last-Translator: \n"
 "Language-Team: Spanish\n"
 "Language: es_ES\n"
@@ -17,21 +17,21 @@ msgstr ""
 "X-Crowdin-File: djangojs.po\n"
 "X-Crowdin-File-ID: 12\n"
 
-#: resources/common.js:195
+#: resources/common.js:194
 msgctxt "time format with day"
 msgid "%d day %h:%m:%s"
 msgid_plural "%d days %h:%m:%s"
 msgstr[0] "%d día %h:%m:%s"
 msgstr[1] "%d días %h:%m:%s"
 
-#: resources/common.js:198
+#: resources/common.js:197
 msgctxt "time format without day"
 msgid "%h:%m:%s"
 msgstr "%h:%m:%s"
 
 #: resources/problem-vote.js:11
 msgid "Vote on problem points"
-msgstr ""
+msgstr "Votar en puntos problemáticos"
 
 #: resources/problem-vote.js:16
 #, javascript-format
@@ -41,12 +41,12 @@ msgstr "No se puede eliminar el voto: %s"
 #: resources/problem-vote.js:28
 #, javascript-format
 msgid "Edit points vote (%s)"
-msgstr ""
+msgstr "Editar voto de puntos (%s)"
 
 #: resources/problem-vote.js:34
 #, javascript-format
 msgid "Unable to cast vote: %s"
-msgstr ""
+msgstr "No se puede emitir voto: %s"
 
 #: resources/problem-vote.js:63
 msgid "Number of votes for this point value"

@@ -62,8 +62,8 @@ class AwesomeRenderer(MathRenderer, mistune.Renderer):
 
     def table(self, header, body):
         return (
-            '<table class="table">\n<thead>%s</thead>\n'
-            '<tbody>\n%s</tbody>\n</table>\n'
+            '<div class="h-scrollable-table">\n<table class="table">\n<thead>%s</thead>\n'
+            '<tbody>\n%s</tbody>\n</table>\n</div>\n'
         ) % (header, body)
 
     def link(self, link, title, text):
@@ -154,9 +154,9 @@ def strip_paragraphs_tags(tree):
         parent = p.getparent()
         prev = p.getprevious()
         if prev is not None:
-            prev.tail = (prev.tail or '') + p.text
+            prev.tail = (prev.tail or '') + (p.text or '')
         else:
-            parent.text = (parent.text or '') + p.text
+            parent.text = (parent.text or '') + (p.text or '')
         parent.remove(p)
 
 

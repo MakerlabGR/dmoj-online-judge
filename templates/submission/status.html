@@ -38,6 +38,7 @@
                     "{{ EVENT_DAEMON_LOCATION }}", "{{ EVENT_DAEMON_POLL_LOCATION }}",
                     ['sub_{{ submission.id_secret }}'], {{ last_msg }}, function (message) {
                         switch (message.type) {
+                            case 'aborted':
                             case 'internal-error':
                             case 'grading-end':
                             case 'compile-error':
@@ -77,7 +78,7 @@
         {% compress js %}
             <script type="text/javascript">
                 window.confirm_and_rejudge = function (form) {
-                    if (confirm("{{ _('Are you sure you want to rejudge?') }}")) {
+                    if (confirm({{ _('Are you sure you want to rejudge?')|htmltojs }})) {
                         form.submit();
                     }
                 };

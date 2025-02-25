@@ -7,13 +7,13 @@ jobs:
     if: github.repository == 'DMOJ/online-judge'
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
-    - name: Set up Python 3.7
-      uses: actions/setup-python@v4
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v5
       with:
-        python-version: '3.7'
+        python-version: '3.11'
     - name: Checkout submodules
       run: |
         git submodule init
@@ -21,7 +21,7 @@ jobs:
     - name: Install requirements
       run: |
         sudo apt-get install gettext
-        curl -O https://artifacts.crowdin.com/repo/deb/crowdin.deb
+        wget https://artifacts.crowdin.com/repo/deb/crowdin3.deb -O crowdin.deb
         sudo dpkg -i crowdin.deb
         pip install -r requirements.txt
         pip install pymysql
@@ -32,10 +32,10 @@ jobs:
         python manage.py makemessages -l en -d djangojs
     - name: Download strings from Crowdin
       env:
-        CROWDIN_API_TOKEN: ${{ secrets.CROWDIN_API_TOKEN }}
+        CROWDIN_API_TOKEN: ${{ secrets.CROWDIN_API_V2_TOKEN }}
       run: |
         cat > crowdin.yaml <<EOF
-        project_identifier: dmoj
+        project_id: 142963
 
         files:
           - source: /locale/en/LC_MESSAGES/django.po
@@ -53,7 +53,7 @@ jobs:
                 zh-TW: zh_Hant
                 sr-CS: sr_Latn
         EOF
-        echo "api_key: ${CROWDIN_API_TOKEN}" >> crowdin.yaml
+        echo "api_token: ${CROWDIN_API_TOKEN}" >> crowdin.yaml
         crowdin download
         rm crowdin.yaml
     - name: Cleanup
@@ -87,7 +87,7 @@ jobs:
           git reset --hard "$i18n_head"
         fi
     - name: Create pull request
-      uses: peter-evans/create-pull-request@v4
+      uses: peter-evans/create-pull-request@v6
       with:
         token: ${{ secrets.REPO_SCOPED_TOKEN }}
         author: dmoj-build <build@dmoj.ca>

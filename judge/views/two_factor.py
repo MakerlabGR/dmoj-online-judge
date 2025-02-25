@@ -8,10 +8,10 @@ import qrcode
 import webauthn
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.views import SuccessURLAllowedHostsMixin
+from django.contrib.auth.views import RedirectURLMixin
 from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
 from django.urls import reverse
-from django.utils.http import is_safe_url
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _, gettext_lazy
 from django.views.generic import FormView, View
 from django.views.generic.base import ContextMixin
@@ -50,7 +50,7 @@ class TOTPEnableView(TOTPView):
     title = gettext_lazy('Enable Two-factor Authentication')
     form_class = TOTPEnableForm
     template_name = 'registration/totp_enable.html'
-    is_refresh = False
+    is_edit = False
 
     def get(self, request, *args, **kwargs):
         profile = self.profile
@@ -76,9 +76,9 @@ class TOTPEnableView(TOTPView):
     def get_context_data(self, **kwargs):
         context = super(TOTPEnableView, self).get_context_data(**kwargs)
         context['totp_key'] = self.request.session['totp_enable_key']
-        context['scratch_codes'] = [] if self.is_refresh else json.loads(self.profile.scratch_codes)
+        context['scratch_codes'] = [] if self.is_edit else json.loads(self.profile.scratch_codes)
         context['qr_code'] = self.render_qr_code(self.request.user.username, context['totp_key'])
-        context['is_refresh'] = self.is_refresh
+        context['is_edit'] = self.is_edit
         context['is_hardcore'] = settings.DMOJ_2FA_HARDCORE
         return context
 
@@ -106,9 +106,9 @@ class TOTPEnableView(TOTPView):
         return 'data:image/png;base64,' + base64.b64encode(buf.getvalue()).decode('ascii')
 
 
-class TOTPRefreshView(TOTPEnableView):
-    title = gettext_lazy('Refresh Two-factor Authentication')
-    is_refresh = True
+class TOTPEditView(TOTPEnableView):
+    title = gettext_lazy('Edit Two-factor Authentication')
+    is_edit = True
 
     def check_skip(self):
         return not self.profile.is_totp_enabled
@@ -226,7 +226,7 @@ class WebAuthnDeleteView(SingleObjectMixin, WebAuthnView):
         return HttpResponse()
 
 
-class TwoFactorLoginView(SuccessURLAllowedHostsMixin, TOTPView, ContextMixin):
+class TwoFactorLoginView(RedirectURLMixin, TOTPView, ContextMixin):
     form_class = TwoFactorLoginForm
     title = gettext_lazy('Perform Two-factor Authentication')
     template_name = 'registration/two_factor_auth.html'
@@ -244,7 +244,7 @@ class TwoFactorLoginView(SuccessURLAllowedHostsMixin, TOTPView, ContextMixin):
 
     def next_page(self):
         redirect_to = self.request.GET.get('next', '')
-        url_is_safe = is_safe_url(
+        url_is_safe = url_has_allowed_host_and_scheme(
             url=redirect_to,
             allowed_hosts=self.get_success_url_allowed_hosts(),
             require_https=self.request.is_secure(),
